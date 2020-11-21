@@ -1,0 +1,60 @@
+version: '3.4'
+services:  
+######################################
+#              Media                 #
+######################################
+  plex:
+    image: linuxserver/plex
+    env_file: .env
+    container_name: plex
+    network_mode: host
+    volumes:
+      - ${PLEX_CONFIG}:/config
+      - ${PLEX_TMP}:/transcode
+      - ${HDD1_DIR}:/mnt/HDD1
+      - ${HDD2_DIR}:/mnt/HDD2
+    restart: always
+  calibre:
+    image: linuxserver/calibre-web
+    container_name: calibre-web
+    env_file: .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.calibre.rule=Host(`${CALIBRE_HOST}`)
+      - traefik.http.routers.calibre.tls.certresolver=lets-encrypt
+      - traefik.http.routers.calibre.entrypoints=web-secure
+      - traefik.http.services.calibre.loadbalancer.server.port=8083
+    environment:
+      - DOCKER_MODS=linuxserver/calibre-web:calibre
+    volumes:
+      - ${CALIBRE_CONFIG}:/config
+      - ${CALIBRE_DIR}:/books
+    networks:
+      - proxy
+    expose:
+      - "8083"
+    restart: unless-stopped
+  tautulli:
+    image: linuxserver/tautulli
+    env_file: .env
+    container_name: tautulli
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tautulli.rule=Host(`${TAUTULLI_HOST}`)
+      - traefik.http.routers.tautulli.tls.certresolver=lets-encrypt
+      - traefik.http.routers.tautulli.entrypoints=web-secure
+    volumes:
+      - ${TAUTULLI_CONFIG}:/config
+      - ${TAUTULLI_LOGS}:/logs
+    networks:
+      - proxy
+    ports:
+      - 8181:8181
+    restart: unless-stopped
+######################################
+#            Networks                #
+######################################
+networks:
+  proxy:
+    external:
+      name: proxy   

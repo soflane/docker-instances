@@ -1,0 +1,39 @@
+providers:
+  docker: 
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+  file:
+    filename: static-conf.yml
+
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: true
+
+#Global HTTP to HTTPS redirection
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: web-secure
+          scheme: https
+          permanent: true
+  web-secure:
+    address: ":443"
+    
+log:
+  level: DEBUG
+  #filePath: "/logs/traefik.log"
+api:
+  dashboard: true
+
+certificatesResolvers:
+  lets-encrypt:
+    acme:
+      email: admin@example.com
+      storage: /letsencrypt/acme.json
+      caServer: https://acme-v02.api.letsencrypt.org/directory
+      dnsChallenge:
+        provider: ovh
+        delayBeforeCheck: 10

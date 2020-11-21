@@ -1,0 +1,41 @@
+version: '3.4'
+services: 
+  traefik:
+    image: traefik:v2.2
+    env_file: .env
+    container_name: traefik
+    hostname: traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml
+      - ./traefik/static-conf.yml:/static-conf.yml
+      - ./traefik/letsencrypt:/letsencrypt
+      - ./traefik/logs:/logs
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.proxy-api.rule=Host(`${TRAEFIK_DASHBOARD_HOST}`)
+      - traefik.http.routers.proxy-api.middlewares=basic-auth@file
+      - traefik.http.routers.proxy-api.entrypoints=web-secure
+      - traefik.http.routers.proxy-api.tls.certresolver=lets-encrypt
+      - traefik.http.routers.proxy-api.service=api@internal
+      - traefik.http.routers.proxy-api.tls
+    networks:
+      - proxy
+    expose:
+      - 8080
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+  watchtower:
+    image: containrrr/watchtower
+    env_file: .env
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+networks:
+  proxy:
+    external:
+      name: proxy  
