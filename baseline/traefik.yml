@@ -33,7 +33,9 @@ certificatesResolvers:
     acme:
       email: admin@<YOURDOMAIN>
       storage: /letsencrypt/acme.json
-      caServer: https://acme-v02.api.letsencrypt.org/directory  
-      dnsChallenge:
-        provider: ovh
-        delayBeforeCheck: 10
+      tlsChallenge: {}
+      #On some instances, I use DNS challenge in order to have wildcard certificates 
+      #caServer: https://acme-v02.api.letsencrypt.org/directory  
+      #dnsChallenge:
+      #  provider: ovh
+      #  delayBeforeCheck: 10

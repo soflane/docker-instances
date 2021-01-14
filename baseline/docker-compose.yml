@@ -1,0 +1,90 @@
+version: "3.5"
+services:
+  traefik:
+    image: traefik:v2.3
+    env_file: .env
+    container_name: traefik
+    hostname: traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - ./static-conf.yml:/static-conf.yml
+      - ./letsencrypt:/letsencrypt
+      - ./logs:/logs
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.proxy-api.rule=Host(`${TRAEFIK_DASHBOARD_HOST}`)
+      - traefik.http.routers.proxy-api.middlewares=security-protocol-pw@file
+      - traefik.http.routers.proxy-api.entrypoints=web-secure
+      - traefik.http.routers.proxy-api.tls.certresolver=lets-encrypt
+      - traefik.http.routers.proxy-api.service=api@internal
+      - traefik.http.routers.proxy-api.tls
+      # global redirect to https
+      #- traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)
+      #- traefik.http.routers.http-catchall.entrypoints=web
+      #- traefik.http.routers.http-catchall.middlewares=force-https@file
+ 
+    networks:
+      - traefik
+    expose:
+      - 8080
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+    
+######################################
+#            Portainer               #
+######################################   
+  portainer:    
+    image: portainer/portainer
+    container_name: portainer        
+    env_file: .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.portainer.entrypoints=web-secure
+      - traefik.http.routers.portainer.rule=Host(`${PORTAINER_HOST}`)
+      - traefik.http.routers.portainer.middlewares=security-protocol@file
+      - traefik.http.routers.portainer.tls.certresolver=lets-encrypt
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - data:/data
+    networks:
+      - traefik
+    expose:
+      - "9000"
+    restart: always
+######################################
+#              NetData               #
+######################################    
+  netdata:
+    container_name: netdata
+    env_file: .env
+    image: netdata/netdata
+    hostname: ${NETDATA_HOST} # set to fqdn of host
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.netdata.rule=Host(`${NETDATA_HOST}`)
+      - traefik.http.routers.netdata.tls.certresolver=lets-encrypt
+      - traefik.http.routers.netdata.entrypoints=web-secure
+      - traefik.http.routers.netdata.middlewares=security-protocol-pw@file
+    ports:
+      - 19999:19999
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    networks: 
+      - traefik
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: always
+networks:
+  traefik:
+      name: traefik  
+volumes:
+  data:

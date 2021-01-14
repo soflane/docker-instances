@@ -30,7 +30,7 @@ services:
       - ${CALIBRE_CONFIG}:/config
       - ${CALIBRE_DIR}:/books
     networks:
-      - proxy
+      - traefik
     expose:
       - "8083"
     restart: unless-stopped
@@ -47,7 +47,7 @@ services:
       - ${TAUTULLI_CONFIG}:/config
       - ${TAUTULLI_LOGS}:/logs
     networks:
-      - proxy
+      - traefik
     ports:
       - 8181:8181
     restart: unless-stopped
@@ -55,6 +55,6 @@ services:
 #            Networks                #
 ######################################
 networks:
-  proxy:
+  traefik:
     external:
-      name: proxy   
+      name: traefik   

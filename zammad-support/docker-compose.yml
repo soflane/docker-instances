@@ -1,0 +1,147 @@
+version: '2'
+services:
+  zammad-backup:
+    container_name: ${NAME}-backup
+    command: ["zammad-backup"]
+    depends_on:
+      - zammad-railsserver
+    entrypoint: /usr/local/bin/backup.sh
+    environment:
+      - BACKUP_SLEEP=86400
+      - HOLD_DAYS=10
+      - POSTGRESQL_USER=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASS}
+    image: ${IMAGE_REPO}:zammad-postgresql${VERSION}
+    links:
+      - zammad-postgresql
+    restart: ${RESTART}
+    volumes:
+      - ${BACKUP_DIR}:/var/tmp/zammad
+      - zammad-data:/opt/zammad
+
+  zammad-elasticsearch:
+    container_name: ${NAME}-elasticsearch
+    environment:
+      - discovery.type=single-node
+    image: ${IMAGE_REPO}:zammad-elasticsearch${VERSION}
+    restart: ${RESTART}
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+
+  zammad-init:
+    container_name: ${NAME}-init
+    command: ["zammad-init"]
+    depends_on:
+      - zammad-postgresql
+    environment:
+      - POSTGRESQL_USER=${POSTGRES_USER}
+      - POSTGRESQL_PASS=${POSTGRES_PASS}
+    image: ${IMAGE_REPO}:zammad${VERSION}
+    links:
+      - zammad-elasticsearch
+      - zammad-postgresql
+    restart: on-failure
+    volumes:
+      - zammad-data:/opt/zammad
+
+  zammad-memcached:
+    container_name: ${NAME}-memcached
+    command: memcached -m 256M
+    image: memcached:1.6.9-alpine
+    restart: ${RESTART}
+
+  zammad-nginx:
+    container_name: ${NAME}-nginx
+    command: ["zammad-nginx"]
+    expose:
+      - "80"
+    depends_on:
+      - zammad-railsserver
+    image: ${IMAGE_REPO}:zammad${VERSION}
+    environment:
+      - VIRTUAL_HOST=${ZAMMAD_HOST}
+      - NGINX_SERVER_SCHEME=https
+    labels:
+        - traefik.enable=true
+        - traefik.docker.network=proxy
+        - traefik.http.routers.zammad-nginx.rule=Host(`${ZAMMAD_HOST}`)
+        - traefik.http.routers.zammad-nginx.tls.certresolver=lets-encrypt
+        - traefik.http.services.zammad-nginx.loadbalancer.server.port=80
+        - traefik.http.routers.zammad-nginx.middlewares=security-protocol@file
+    links:
+      - zammad-railsserver
+      - zammad-websocket
+    restart: ${RESTART}
+    networks: 
+        - default
+        - traefik
+    volumes:
+      - zammad-data:/opt/zammad
+
+  zammad-postgresql:
+    container_name: ${NAME}-postgresql 
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASS}
+    image: ${IMAGE_REPO}:zammad-postgresql${VERSION}
+    restart: ${RESTART}
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+      - zammad-data:/opt/zammad
+      - ${BACKUP_DIR}:/var/tmp/zammad:ro
+
+
+  zammad-railsserver:
+    container_name: ${NAME}-railsserver
+    command: ["zammad-railsserver"]
+    depends_on:
+      - zammad-memcached
+      - zammad-postgresql
+    image: ${IMAGE_REPO}:zammad${VERSION}
+    links:
+      - zammad-elasticsearch
+      - zammad-memcached
+      - zammad-postgresql
+    restart: ${RESTART}
+    volumes:
+      - zammad-data:/opt/zammad
+
+  zammad-scheduler:
+    container_name: ${NAME}-scheduler
+    command: ["zammad-scheduler"]
+    depends_on:
+      - zammad-memcached
+      - zammad-railsserver
+    image: ${IMAGE_REPO}:zammad${VERSION}
+    links:
+      - zammad-elasticsearch
+      - zammad-memcached
+      - zammad-postgresql
+    restart: ${RESTART}
+    volumes:
+      - zammad-data:/opt/zammad
+
+  zammad-websocket:
+    container_name: ${NAME}-websocket
+    command: ["zammad-websocket"]
+    depends_on:
+      - zammad-memcached
+      - zammad-railsserver
+    image: ${IMAGE_REPO}:zammad${VERSION}
+    links:
+      - zammad-postgresql
+      - zammad-memcached
+    restart: ${RESTART}
+    volumes:
+      - zammad-data:/opt/zammad
+networks:
+  proxy:
+    external:
+      name: proxy
+volumes:
+  elasticsearch-data:
+    driver: local
+  postgresql-data:
+    driver: local
+  zammad-data:
+    driver: local

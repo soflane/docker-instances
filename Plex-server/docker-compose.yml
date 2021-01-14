@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.5'
 services: 
   traefik:
     image: traefik:v2.2
@@ -20,13 +20,18 @@ services:
       - traefik.http.routers.proxy-api.service=api@internal
       - traefik.http.routers.proxy-api.tls
     networks:
-      - proxy
+      - traefik
     expose:
       - 8080
     ports:
       - 80:80
       - 443:443
     restart: unless-stopped
+######################################
+#              Watchtower            #
+#      Auto-update containers        #
+# CAUTION! USE THIS WITH IMAGES TAGS #
+###################################### 
   watchtower:
     image: containrrr/watchtower
     env_file: .env
@@ -36,6 +41,5 @@ services:
     restart: unless-stopped
 
 networks:
-  proxy:
-    external:
-      name: proxy  
+  traefik:
+      name: traefik  

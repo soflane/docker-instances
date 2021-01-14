@@ -24,7 +24,7 @@ services:
       - ${HDD1_DIR}:/mnt/HDD1
       - ${HDD2_DIR}:/mnt/HDD2
     networks: 
-      - proxy
+      - traefik
     ports:
       - "9091:9091"
       - "51413:51413"
@@ -51,7 +51,7 @@ services:
       - ${HDD1_DIR}:/mnt/HDD1
       - ${HDD2_DIR}:/mnt/HDD2
     networks:
-      - proxy
+      - traefik
     ports:
       - 8081:8081
     restart: unless-stopped
@@ -72,7 +72,7 @@ services:
       - ${HDD1_DIR}:/mnt/HDD1
       - ${HDD2_DIR}:/mnt/HDD2
     networks:
-      - proxy
+      - traefik
     ports:
       - "5050"
     restart: always
@@ -91,7 +91,7 @@ services:
     volumes:
       - ${JACKETT_CONFIG}:/config
     networks: 
-      - proxy
+      - traefik
     ports:
       - 9117:9117
     restart: unless-stopped
@@ -109,11 +109,12 @@ services:
       - traefik.http.routers.joal.rule=Host(`${JOAL_HOST}`)  || Host(`${JOAL_REDIR_HOST}`)
       - traefik.http.routers.joal.entrypoints=web-secure
       - traefik.http.routers.joal.tls.certresolver=lets-encrypt
-      - traefik.http.routers.joal.middlewares=joal-chain@file
+      - traefik.http.routers.joal.middlewares=add-joal@file
+      - traefik.http.routers.joal.middlewares=security-protocol-pw@file
     volumes:
       - ${JOAL_CONFIG}:/data
     networks:
-      - proxy
+      - traefik
     ports:
       - "5081:5081"
     restart: unless-stopped
@@ -121,6 +122,6 @@ services:
 #            Networks                #
 ######################################
 networks:
-  proxy:
+  traefik:
     external:
-      name: proxy   
+      name: traefik   
