@@ -1,0 +1,37 @@
+version: '3.4'
+services: 
+  mysql_snipe:
+    image: mysql:8
+    env_file: .env
+    container_name: mysql_snipe
+    hostname: mysql_snipe
+    networks:
+      - traefik
+    volumes:
+      - ${SNIPEIT_DATABASE_PATH}:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    expose: 
+      - 3306
+    restart: always
+#docker exec -it snipe-it sh
+  snipe-it:
+    image: snipe/snipe-it:latest
+    container_name: snipe-it
+    env_file: .env
+    depends_on:
+      - mysql_snipe
+    labels: 
+      - traefik.enable=true
+      - traefik.http.routers.snipeit.rule=Host(`${SNIPEIT_HOST}`)
+      - traefik.http.routers.snipeit.tls.certresolver=lets-encrypt
+      - traefik.http.routers.snipeit.entrypoints=web-secure
+      - traefik.http.routers.snipeit.middlewares=security-protocol@file
+    expose:
+      - 80
+    networks:
+      - proxy
+    restart: unless-stopped
+networks:
+  traefik:
+    external:
+      name: traefik
