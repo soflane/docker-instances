@@ -1,0 +1,44 @@
+version: '3.4'
+services:
+  bitwarden:
+    hostname: bitwarden
+    image: bitwardenrs/server:latest
+    container_name: bitwardenrs
+    env_file: .env
+    volumes:
+      - ./data:/data
+    labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik
+        - traefik.http.routers.bitwarden.rule=Host(`${BW_HOST}`)
+        - traefik.http.routers.bitwarden.tls.certresolver=lets-encrypt
+        - traefik.http.services.bitwarden.loadbalancer.server.port=80
+        - traefik.http.services.bitwarden.loadbalancer.passHostHeader=true
+    expose:
+        - 80
+    ports:
+      - '33012:3012'
+    networks:
+        - traefik
+    restart: unless-stopped
+#Fail2ban
+#see https://github.com/dani-garcia/bitwarden_rs/wiki/Fail2Ban-Setup 
+#for more infos
+  fail2ban:
+    container_name: fail2ban
+    restart: always
+    image: crazymax/fail2ban:latest
+    env_file: .env
+    volumes:
+        - /volume1/admin-folders/bitwarden/fail2ban:/data
+        - /volume1/admin-folders/bitwarden/data:/bitwarden:ro
+    network_mode: "host"
+    privileged: true
+    cap_add:
+        - NET_ADMIN
+        - NET_RAW
+
+networks:
+  traefik:
+    external:
+      name: traefik
