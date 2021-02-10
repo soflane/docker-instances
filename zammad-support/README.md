@@ -50,10 +50,15 @@ $ ./zammad_docker_restore.sh 20201203164620
 Requirements : 
 Traefik: See [baseline](https://github.com/soflane/docker-instances/tree/master/baseline)
 
+### Usefull commands
 
+enter zammad console ([more info](https://docs.zammad.org/en/latest/admin/console.html)) :
 
-
+```bash
+docker exec -i zammad-railsserver rails c
+```
 
 Credits to https://docs.zammad.org/en/latest/install/docker-compose.html
 
 ## 
+
