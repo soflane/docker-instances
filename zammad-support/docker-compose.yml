@@ -18,6 +18,8 @@ services:
     volumes:
       - ${BACKUP_DIR}:/var/tmp/zammad
       - zammad-data:/opt/zammad
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
   zammad-elasticsearch:
     container_name: ${NAME}-elasticsearch
@@ -27,6 +29,8 @@ services:
     restart: ${RESTART}
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
   zammad-init:
     container_name: ${NAME}-init
@@ -43,11 +47,16 @@ services:
     restart: on-failure
     volumes:
       - zammad-data:/opt/zammad
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
   zammad-memcached:
     container_name: ${NAME}-memcached
     command: memcached -m 256M
     image: memcached:1.6.9-alpine
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     restart: ${RESTART}
 
   zammad-nginx:
@@ -77,6 +86,8 @@ services:
         - traefik
     volumes:
       - zammad-data:/opt/zammad
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
   zammad-postgresql:
     container_name: ${NAME}-postgresql 
@@ -89,6 +100,8 @@ services:
       - postgresql-data:/var/lib/postgresql/data
       - zammad-data:/opt/zammad
       - ${BACKUP_DIR}:/var/tmp/zammad:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
 
   zammad-railsserver:
@@ -105,6 +118,8 @@ services:
     restart: ${RESTART}
     volumes:
       - zammad-data:/opt/zammad
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
   zammad-scheduler:
     container_name: ${NAME}-scheduler
@@ -120,6 +135,8 @@ services:
     restart: ${RESTART}
     volumes:
       - zammad-data:/opt/zammad
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 
   zammad-websocket:
     container_name: ${NAME}-websocket
@@ -134,8 +151,10 @@ services:
     restart: ${RESTART}
     volumes:
       - zammad-data:/opt/zammad
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
 networks:
-  proxy:
+  traefik:
     external:
       name: proxy
 volumes:
