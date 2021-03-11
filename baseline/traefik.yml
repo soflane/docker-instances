@@ -4,6 +4,7 @@ providers:
     exposedByDefault: false
   file:
     filename: static-conf.yml
+    watch: true
 
 global:
   checkNewVersion: true
