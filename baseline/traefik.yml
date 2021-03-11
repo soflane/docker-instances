@@ -25,6 +25,11 @@ entryPoints:
 log:
   level: DEBUG
   #filePath: "/logs/traefik.log"
+accessLog:
+  filePath: "/var/log/access.log"
+  filters:    
+    statusCodes:
+      - "400-499"
 api:
   dashboard: true
 

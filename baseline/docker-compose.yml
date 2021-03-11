@@ -10,7 +10,7 @@ services:
       - ./traefik.yml:/etc/traefik/traefik.yml
       - ./static-conf.yml:/static-conf.yml
       - ./letsencrypt:/letsencrypt
-      - ./logs:/logs
+      - /var/log/traefik:/var/log
     labels:
       - traefik.enable=true
       - traefik.http.routers.proxy-api.rule=Host(`${TRAEFIK_DASHBOARD_HOST}`)
