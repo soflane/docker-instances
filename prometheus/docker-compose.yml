@@ -1,0 +1,125 @@
+version: '3.4'
+services:
+  prometheus:    
+    image: prom/prometheus:v2.22.0
+    hostname: prometheus
+    env_file: .env
+    container_name: prometheus
+    command: 
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      #- '--web.external-url=${PROMETHEUS_HOST}'
+      #- '--web.route-prefix="/"'
+      - '--storage.tsdb.path=/prometheus'
+      #- '--web.console.libraries=/etc/prometheus/console_libraries'
+      #- '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=365d'
+      - '--web.enable-admin-api'
+    env_file: .env
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alertmanager/alert.rules/alerts.rules.yml:/alertmanager/alert.rules/alerts.rules.yml
+      - prometheus-data:/prometheus
+    labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik
+        - traefik.http.routers.prometheus.rule=Host(`${PROMETHEUS_HOST}`)
+        - traefik.http.routers.prometheus.tls.certresolver=lets-encrypt
+        - traefik.http.services.prometheus.loadbalancer.server.port=9090
+        - traefik.http.routers.prometheus.middlewares=security-protocol-pw@file
+    ports: 
+      - "9090"
+    networks:
+      - traefik
+      - prometheus
+    restart: unless-stopped
+  alertmanager:
+    hostname: alertmanager
+    image: prom/alertmanager
+    env_file: .env
+    container_name: alertmanager
+    restart: always
+    labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik
+        - traefik.http.routers.alertmanager.rule=Host(`${ALERTMANAGER_HOST}`)
+        - traefik.http.routers.alertmanager.tls.certresolver=lets-encrypt
+        - traefik.http.services.alertmanager.loadbalancer.server.port=9093
+        - traefik.http.routers.alertmanager.middlewares=security-protocol-pw@file
+    ports:
+      - "9093"
+    networks:
+      - traefik
+      - prometheus
+    volumes:
+      - ./prometheus/data/alertmanager:/alertmanager
+  cadvisor: 
+    image: gcr.io/google-containers/cadvisor:latest
+    container_name: cadvisor
+    env_file: .env
+    hostname: cadvisor
+    ports: 
+      - "8080"
+    labels: 
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.cadvisor.rule=Host(`${CADVISOR_HOST}`)
+      - traefik.http.routers.cadvisor.tls.certresolver=lets-encrypt
+      - traefik.http.services.cadvisor.loadbalancer.server.port=8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    #depends_on: 
+    #    - redis
+    networks: 
+      - traefik
+      - prometheus
+    restart: unless-stopped
+  grafana: 
+    image: grafana/grafana #add version
+    container_name: grafana
+    env_file: .env
+    hostname: grafana
+    user: "${PUID}:${GUID}"
+    command: 
+      - '--config=/usr/share/grafana/conf/custom.ini'
+    volumes: 
+      - grafana-data-prov:/var/lib/grafana
+      - ./grafana/custom.ini:/usr/share/grafana/conf/custom.ini
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    labels: 
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.grafana.rule=Host(`$GRAFANA_HOST`)
+      - traefik.http.routers.grafana.tls.certresolver=lets-encrypt
+    ports: 
+      - "3000"
+    networks: 
+      - traefik
+      - prometheus
+    restart: unless-stopped
+  blackbox-exporter:
+    image: prom/blackbox-exporter
+    container_name: blackbox-exporter
+    env_file: .env
+    command:
+      - '--config.file=/config/blackbox.yml'
+    volumes:
+      - "./blackbox:/config"
+    dns: 1.1.1.1
+    networks:
+      - prometheus
+    restart: unless-stopped
+
+
+volumes: 
+  prometheus-data: {}
+  grafana-data-prov: {}
+networks:
+  prometheus:
+    name: prometheus  
+  traefik:
+    external: true 
+    name: traefik
