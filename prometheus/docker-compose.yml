@@ -17,7 +17,7 @@ services:
     env_file: .env
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./alertmanager/alert.rules/alerts.rules.yml:/alertmanager/alert.rules/alerts.rules.yml
+      - ./alertmanager/alert.rules:/alertmanager/alert.rules
       - prometheus-data:/prometheus
     labels:
         - traefik.enable=true
@@ -26,8 +26,8 @@ services:
         - traefik.http.routers.prometheus.tls.certresolver=lets-encrypt
         - traefik.http.services.prometheus.loadbalancer.server.port=9090
         - traefik.http.routers.prometheus.middlewares=security-protocol-pw@file
-    ports: 
-      - "9090"
+    expose: 
+      - 9090
     networks:
       - traefik
       - prometheus
@@ -37,6 +37,8 @@ services:
     image: prom/alertmanager
     env_file: .env
     container_name: alertmanager
+    command: 
+      - '--config.file=/alertmanager/alertmanager.yml'
     restart: always
     labels:
         - traefik.enable=true
@@ -45,20 +47,20 @@ services:
         - traefik.http.routers.alertmanager.tls.certresolver=lets-encrypt
         - traefik.http.services.alertmanager.loadbalancer.server.port=9093
         - traefik.http.routers.alertmanager.middlewares=security-protocol-pw@file
-    ports:
-      - "9093"
+    expose:
+      - 9093
     networks:
       - traefik
       - prometheus
     volumes:
-      - ./prometheus/data/alertmanager:/alertmanager
+      - ./alertmanager/alertmanager.yml:/alertmanager/alertmanager.yml
   cadvisor: 
     image: gcr.io/google-containers/cadvisor:latest
     container_name: cadvisor
     env_file: .env
     hostname: cadvisor
-    ports: 
-      - "8080"
+    expose: 
+      - 8080
     labels: 
       - traefik.enable=true
       - traefik.docker.network=traefik
@@ -85,17 +87,19 @@ services:
     command: 
       - '--config=/usr/share/grafana/conf/custom.ini'
     volumes: 
-      - grafana-data-prov:/var/lib/grafana
+      - grafana-data:/var/lib/grafana
       - ./grafana/custom.ini:/usr/share/grafana/conf/custom.ini
       - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      
     labels: 
       - traefik.enable=true
       - traefik.docker.network=traefik
       - traefik.http.routers.grafana.rule=Host(`$GRAFANA_HOST`)
       - traefik.http.routers.grafana.tls.certresolver=lets-encrypt
-    ports: 
-      - "3000"
+      - traefik.http.routers.grafana.middlewares=security-protocol@file
+    expose: 
+      - 3000
     networks: 
       - traefik
       - prometheus
@@ -109,14 +113,28 @@ services:
     volumes:
       - "./blackbox:/config"
     dns: 1.1.1.1
+    expose: 
+      - 9115
     networks:
+      - prometheus
+    restart: unless-stopped
+  
+  #https://github.com/prometheus-msteams/prometheus-msteams
+  prometheus-msteams:
+    hostname: prometheus-msteams
+    image: quay.io/prometheusmsteams/prometheus-msteams
+    container_name: prometheus-msteams
+    env_file: .env
+    expose: 
+      - 2000
+    networks: 
       - prometheus
     restart: unless-stopped
 
 
 volumes: 
   prometheus-data: {}
-  grafana-data-prov: {}
+  grafana-data: {}
 networks:
   prometheus:
     name: prometheus  

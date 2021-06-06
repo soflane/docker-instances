@@ -1,6 +1,6 @@
 #################################### SMTP / Emailing #####################
 [smtp]
-enabled = false
+enabled = true
 host = 
 user = 
 # If the password contains # or ; you have to wrap it with triple quotes. Ex """#password;"""

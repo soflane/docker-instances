@@ -1,0 +1,138 @@
+global:
+  # The default SMTP From header field.
+  smtp_from: XXX@DOMAIN.COM 
+  # The default SMTP smarthost used for sending emails, including port number.
+  # Port number usually is 25, or 587 for SMTP over TLS (sometimes referred to as STARTTLS).
+  # Example: smtp.example.org:587
+  smtp_smarthost: smtp.example.org:587 
+  # The default hostname to identify to the SMTP server.
+  #[ smtp_hello: <string> | default = "localhost" ]
+  # SMTP Auth using CRAM-MD5, LOGIN and PLAIN. If empty, Alertmanager doesn't authenticate to the SMTP server.
+  smtp_auth_username: XXX@DOMAIN.COM
+  # SMTP Auth using LOGIN and PLAIN.
+  smtp_auth_password: XXXXXXXXXXX
+  # SMTP Auth using PLAIN.
+  #[ smtp_auth_identity: <string> ]
+  # SMTP Auth using CRAM-MD5.
+  #[ smtp_auth_secret: <secret> ]
+  # The default SMTP TLS requirement.
+  # Note that Go does not support unencrypted connections to remote SMTP endpoints.
+  smtp_require_tls: true
+
+  # The API URL to use for Slack notifications.
+  #[ slack_api_url: <secret> ]
+  #[ slack_api_url_file: <filepath> ]
+  #[ victorops_api_key: <secret> ]
+  #[ victorops_api_url: <string> | default = "https://alert.victorops.com/integrations/generic/20131114/alert/" ]
+  #[ pagerduty_url: <string> | default = "https://events.pagerduty.com/v2/enqueue" ]
+  #[ opsgenie_api_key: <secret> ]
+  #[ opsgenie_api_url: <string> | default = "https://api.opsgenie.com/" ]
+  #[ wechat_api_url: <string> | default = "https://qyapi.weixin.qq.com/cgi-bin/" ]
+  #[ wechat_api_secret: <secret> ]
+  resolve_timeout: 5m
+  http_config:
+    follow_redirects: true
+  smtp_hello: soflane-prometheus
+
+# The directory from which notification templates are read.
+templates:
+- '/etc/alertmanager/template/*.tmpl'
+
+# The root route on which each incoming alert enters.
+route:
+  # The labels by which incoming alerts are grouped together. For example,
+  # multiple alerts coming in for cluster=A and alertname=LatencyHigh would
+  # be batched into a single group.
+  #
+  # To aggregate by all possible labels use '...' as the sole label name.
+  # This effectively disables aggregation entirely, passing through all
+  # alerts as-is. This is unlikely to be what you want, unless you have
+  # a very low alert volume or your upstream notification system performs
+  # its own grouping. Example: group_by: [...]
+  #group_by: ['alertname', 'cluster', 'service']
+
+  # When a new group of alerts is created by an incoming alert, wait at
+  # least 'group_wait' to send the initial notification.
+  # This way ensures that you get multiple alerts for the same group that start
+  # firing shortly after another are batched together on the first
+  # notification.
+  #group_wait: 30s
+
+  # When the first notification was sent, wait 'group_interval' to send a batch
+  # of new alerts that started firing for that group.
+  #group_interval: 5m
+
+  # If an alert has successfully been sent, wait 'repeat_interval' to
+  # resend them.
+  #repeat_interval: 3h
+
+  # A default receiver
+  receiver: teams-ict
+
+  # All the above attributes are inherited by all child routes and can
+  # overwritten on each.
+
+  ## The child route trees.
+  #routes:
+  ## This routes performs a regular expression match on alert labels to
+  ## catch alerts that are related to a list of services.
+  #- matchers:
+  #  - service=~"foo1|foo2|baz"
+  #  receiver: sofiane
+  #  # The service has a sub-route for critical alerts, any alerts
+  #  # that do not match, i.e. severity != critical, fall-back to the
+  #  # parent node and are sent to 'team-X-mails'
+  #  routes:
+  #  - matchers:
+  #    - severity="critical"
+  #    receiver: sofiane
+  #- matchers:
+  #  - service="files"
+  #  receiver: sofiane
+#
+#
+#
+  ## This route handles all alerts coming from a database service. If there's
+  ## no team to handle it, it defaults to the DB team.
+  #- matchers:
+  #  - service="database"
+  #  receiver: sofiane
+  #  # Also group alerts by affected database.
+  #  group_by: [alertname, cluster, database]
+  #  routes:
+  #  - matchers:
+  #    - owner="team-X"
+  #    receiver: sofiane
+  #    continue: true
+  #  - matchers:
+  #    - owner="team-Y"
+  #    receiver: sofiane
+#
+
+# Inhibition rules allow to mute a set of alerts given that another alert is
+# firing.
+# We use this to mute any warning-level notifications if the same alert is
+# already critical.
+#inhibit_rules:
+#- source_matchers: [ severity="critical" ]
+#  target_matchers: [ severity="warning" ]
+#  # Apply inhibition if the alertname is the same.
+#  # CAUTION:
+#  #   If all label names listed in `equal` are missing
+#  #   from both the source and target alerts,
+#  #   the inhibition rule will apply!
+#  equal: [ alertname, cluster, service ]
+
+
+
+
+receivers:
+- name: sofiane
+  email_configs:
+  - to: 'XXX@DOMAIN.COM'
+    send_resolved: true
+- name: teams-ict
+  webhook_configs: 
+  - send_resolved: true
+    url: 'http://prometheus-msteams:2000/alertmanager' # the prometheus-msteams proxy + "/_dynamicwebhook/" + webhook url (without prefix "https://")
+    # new created webhooks have a different format: https://yourtenant.webhook.office.com/webhookb2/xxx...
