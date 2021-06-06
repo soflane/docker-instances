@@ -1,0 +1,57 @@
+# Credits https://github.com/fatedier/frp
+version: "3.3"
+services:
+  frps:    
+    image: snowdreamtech/frps:0.36.2
+    container_name: frps        
+    hostname: frps
+    env_file: .env
+    labels:
+      - traefik.enable=true
+      # Admin UI
+      - traefik.http.routers.frps.entrypoints=web-secure
+      - traefik.http.routers.frps.rule=Host(`${FRPS_ADMIN_HOST}`)
+      - traefik.http.routers.frps.middlewares=security-protocol@file
+      - traefik.http.routers.frps.tls.certresolver=lets-encrypt
+      - traefik.http.services.frps.loadbalancer.server.port=${FRPS_ADMIN_PORT}
+      - traefik.http.routers.frps.service=frps
+      # Dashboard Panel
+      - traefik.http.routers.frps-dashboard.entrypoints=web-secure
+      - traefik.http.routers.frps-dashboard.rule=Host(`${FRPS_DASHBOARD_HOST}`)
+      - traefik.http.routers.frps-dashboard.middlewares=security-protocol@file
+      - traefik.http.routers.frps-dashboard.tls.certresolver=lets-encrypt
+      - traefik.http.services.frps-dashboard.loadbalancer.server.port=${FRPS_DASHBOARD_PORT}
+      - traefik.http.routers.frps-dashboard.service=frps-dashboard
+      # Vhosts router 
+      - traefik.http.routers.frp-vhosts.entrypoints=web-secure
+      - traefik.http.routers.frp-vhosts.rule=Host(`${MAIN_DOMAIN}`)
+      - traefik.http.routers.frp-vhosts.middlewares=security-protocol-pw@file
+      - traefik.http.routers.frp-vhosts.tls.certresolver=lets-encrypt
+      - traefik.http.services.frp-vhosts.loadbalancer.server.port=${FRPS_VHOST_PORT}
+      - traefik.http.routers.frp-vhosts.service=frp-vhosts
+      
+
+      #- traefik.http.routers.frp-vhost.middlewares=security-protocol-pw@file
+      # This three lines will ask traefik to make this service as default route
+      # if the hostname is not recognized/unknown by traefik
+      - traefik.http.routers.frp-vhosts.tls.domains[0].main=${MAIN_DOMAIN}
+      - traefik.http.routers.frp-vhosts.tls.domains[0].sans=*.${MAIN_DOMAIN} 
+      - traefik.http.routers.frp-vhosts.rule=hostregexp(`{host:.+}`) 
+      - traefik.http.routers.frp-vhosts.priority=1
+    volumes:
+      - ./frps.ini:/etc/frp/frps.ini
+    networks:
+      - traefik
+    expose:
+      - ${FRPS_DASHBOARD_PORT}                             # Web Dashboard UI 
+      - ${FRPS_VHOST_PORT}                                 # HTTP vhosts 
+    ports:
+      - ${FRPS_BIND_PORT}:${FRPS_BIND_PORT}                # Frps bind port
+      - ${FRPS_ADMIN_PORT}:${FRPS_ADMIN_PORT}              # Web admin UI
+      #- ${REMOTE_MACHINE_1_SSH_PORT}:${REMOTE_MACHINE_1_SSH_PORT}
+    restart: always
+networks:
+  traefik:
+    external:
+      name: traefik
+

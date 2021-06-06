@@ -1,0 +1,10 @@
+version: "3.3"
+services:
+  frp-client:    
+    image: snowdreamtech/frpc:0.36.2
+    container_name: frp-client        
+    hostname: frp-client
+    volumes:
+      - ./frpc.ini:/etc/frp/frpc.ini
+    restart: always
+
