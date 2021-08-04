@@ -12,17 +12,17 @@ http:
     basic-auth:
       basicAuth:
         users:
-          - "user:$2y$10$ZkKqodRFTqTper.DNIaen.k/nRG1VJ5XpQ724zfZKKMi1n0iGyKYG"
+          - '{{env "BASIC_AUTH_USER"}}'
   #
   #     If you don't use joal, just delete the following middleware 
   #     
   #     This is specific for joal, instead of configuring the web UI to connect to the joal deamon each time visiting the page, this add the configuration in the URL as GET requests. 
   #     "What about security?" would you ask, this is why there is a basic auth in the joal-chain 
   #        
-    add-joal:
-      redirectRegex:
-        regex: "(.*)ratio.<YOURDOMAIN>(.*)"
-        replacement: "https://joal.<YOURDOMAIN>/joal/ui?ui_credentials=%7B%0A%20%20%22host%22%3A%20%22joal.<YOURDOMAIN>%22%2C%0A%20%20%22port%22%3A%20443%2C%0A%20%20%22pathPrefix%22%3A%20%22joal%22%2C%0A%20%20%22secretToken%22%3A%20%22Trololo%22%0A%7D"
+  #  add-joal:
+  #    redirectRegex:
+  #      regex: "(.*)ratio.<YOURDOMAIN>(.*)"
+  #      replacement: "https://joal.<YOURDOMAIN>/joal/ui?ui_credentials=%7B%0A%20%20%22host%22%3A%20%22joal.<YOURDOMAIN>%22%2C%0A%20%20%22port%22%3A%20443%2C%0A%20%20%22pathPrefix%22%3A%20%22joal%22%2C%0A%20%20%22secretToken%22%3A%20%22Trololo%22%0A%7D"
   #
   #  Add security policies to get a better score at SSLabs 
   #
@@ -47,7 +47,7 @@ http:
         browserXssFilter: true
         # sslForceHost: true # add sslHost to all of the services
         # sslHost: "example.com"
-        sslHost: "<YOURDOMAIN>"
+        sslHost: "{{env "MAIN_DOMAIN"}}"
         referrerPolicy: "same-origin"
         # Setting contentSecurityPolicy is more secure but it can break things. Proper auth will reduce the risk.
         # the below line also breaks some apps due to 'none' - sonarr, radarr, etc.
@@ -56,7 +56,7 @@ http:
         customResponseHeaders:
           X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex,"
           server: ""
-          Permissions-Policy: "geolocation=(self 'https://*.<YOURDOMAIN>'), microphone=()"
+          Permissions-Policy: "geolocation=(self 'https://*.{{env "MAIN_DOMAIN"}}'), microphone=()"
           #Content-Security-Policy: "default-src 'self'"
     rate-limit:
       rateLimit: 

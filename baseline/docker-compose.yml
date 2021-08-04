@@ -1,28 +1,33 @@
 version: "3.5"
 services:
+######################################
+#        Traefik Reverse Proxy       #
+######################################   
+
   traefik:
     image: traefik:v2.3
     env_file: .env
     container_name: traefik
-    hostname: traefik
+    hostname: ${TRAEFIK_DASHBOARD_HOSTNAME}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik.yml:/etc/traefik/traefik.yml
-      - ./static-conf.yml:/static-conf.yml
+      - ./traefik-conf/:/custom-conf/
       - ./letsencrypt:/letsencrypt
       - /var/log/traefik:/var/log
     labels:
       - traefik.enable=true
-      - traefik.http.routers.proxy-api.rule=Host(`${TRAEFIK_DASHBOARD_HOST}`)
+      - traefik.http.routers.proxy-api.rule=Host(`${TRAEFIK_DASHBOARD_HOSTNAME}.${MAIN_DOMAIN}`)
       - traefik.http.routers.proxy-api.middlewares=security-protocol-pw@file
       - traefik.http.routers.proxy-api.entrypoints=web-secure
       - traefik.http.routers.proxy-api.tls.certresolver=lets-encrypt
       - traefik.http.routers.proxy-api.service=api@internal
       - traefik.http.routers.proxy-api.tls
       # global redirect to https
+      #- traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
       #- traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)
       #- traefik.http.routers.http-catchall.entrypoints=web
-      #- traefik.http.routers.http-catchall.middlewares=force-https@file
+      #- traefik.http.routers.http-catchall.middlewares=redirect-to-https
  
     networks:
       - traefik
@@ -38,15 +43,18 @@ services:
 ######################################   
   portainer:    
     image: portainer/portainer
-    container_name: portainer        
+    container_name: portainer
+    hostname: ${PORTAINER_HOSTNAME}        
     env_file: .env
     labels:
       - traefik.enable=true
       - traefik.http.routers.portainer.entrypoints=web-secure
-      - traefik.http.routers.portainer.rule=Host(`${PORTAINER_HOST}`)
+      - traefik.http.routers.portainer.rule=Host(`${PORTAINER_HOSTNAME}.${MAIN_DOMAIN}`)
       - traefik.http.routers.portainer.middlewares=security-protocol@file
       - traefik.http.routers.portainer.tls.certresolver=lets-encrypt
       - traefik.http.services.portainer.loadbalancer.server.port=9000
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - data:/data
@@ -62,14 +70,16 @@ services:
     container_name: netdata
     env_file: .env
     image: netdata/netdata
-    hostname: ${NETDATA_HOST} # set to fqdn of host
+    hostname: ${NETDATA_HOSTNAME} # set to fqdn of host
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik
-      - traefik.http.routers.netdata.rule=Host(`${NETDATA_HOST}`)
+      - traefik.http.routers.netdata.rule=Host(`${NETDATA_HOSTNAME}.${MAIN_DOMAIN}`)
       - traefik.http.routers.netdata.tls.certresolver=lets-encrypt
       - traefik.http.routers.netdata.entrypoints=web-secure
       - traefik.http.routers.netdata.middlewares=security-protocol-pw@file
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
     ports:
       - 19999:19999
     cap_add:
@@ -83,8 +93,38 @@ services:
       - /sys:/host/sys:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: always
+######################################
+#               DNS                  #
+######################################
+  ddclient:
+    image: linuxserver/ddclient
+    container_name: ddclient
+    labels:
+      - traefik.enable=false
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${DDCLIENT_CONFIG}:/config
+    restart: unless-stopped
+######################################
+#              Watchtower            #
+#      Auto-update containers        #
+# CAUTION! USE THIS WITH IMAGES TAGS #
+###################################### 
+  watchtower:
+    image: containrrr/watchtower
+    env_file: .env
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
 networks:
   traefik:
-      name: traefik  
+    name: traefik  
 volumes:
   data:
