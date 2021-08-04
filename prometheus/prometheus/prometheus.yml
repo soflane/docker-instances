@@ -12,9 +12,12 @@ alerting:
   - static_configs:
     - targets:
       - alertmanager:9093
+    scheme: http
+    timeout: 10s
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
+  - "/alertmanager/alert.rules/blackbox.yml"
   # - "first_rules.yml"
   # - "second_rules.yml"
 #rule_files:
