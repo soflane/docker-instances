@@ -90,6 +90,7 @@ services:
       - traefik.http.routers.transmission.tls.certresolver=lets-encrypt
       - traefik.http.routers.transmission.entrypoints=web-secure
       - traefik.http.services.transmission.loadbalancer.server.port=9091
+      - traefik.http.routers.transmission.middlewares=security-protocol-pw@file
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
     environment:
@@ -207,6 +208,7 @@ services:
       - traefik.http.routers.joal.tls.certresolver=lets-encrypt
       - traefik.http.middlewares.joal-bypass.redirectregex.regex=`(.*)${JOAL_REDIR_HOSTNAME}.${MAIN_DOMAIN}(.*)`
       - traefik.http.middlewares.joal-bypass.redirectregex.replacement=`https://${JOAL_HOSTNAME}.${MAIN_DOMAIN}/joal/ui?ui_credentials=%7B%0A%20%20%22host%22%3A%20%22joal.ayoute.ovh%22%2C%0A%20%20%22port%22%3A%20443%2C%0A%20%20%22pathPrefix%22%3A%20%22joal%22%2C%0A%20%20%22secretToken%22%3A%20%22Trololo%22%0A%7D`
+      - traefik.http.routers.joal.middlewares=joal-bypass
       #- traefik.http.routers.joal.middlewares=joal-chain@file
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
