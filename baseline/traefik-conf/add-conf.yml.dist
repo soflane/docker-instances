@@ -1,0 +1,19 @@
+#
+#  Specific redirections outside docker containers, another host in the same network for example
+#
+http: 
+  routers:
+    rt: 
+      entryPoints: 
+        - "web-secure"
+      service: rt
+      rule: Host(`r1.example.com`)
+      middlewares:
+        - security-protocol-pw@file
+      tls:
+          certResolver: lets-encrypt        
+  services: 
+    rt: 
+      loadBalancer:
+        servers:
+          - url: "http://192.168.1.1"

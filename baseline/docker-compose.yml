@@ -28,7 +28,6 @@ services:
       #- traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)
       #- traefik.http.routers.http-catchall.entrypoints=web
       #- traefik.http.routers.http-catchall.middlewares=redirect-to-https
- 
     networks:
       - traefik
     expose:
