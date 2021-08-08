@@ -1,0 +1,46 @@
+providers:
+  docker: 
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+  file:
+    directory: "/custom-conf/dynamic/"
+    watch: true
+
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: true
+
+#Global HTTP to HTTPS redirection
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: web-secure
+          scheme: https
+          permanent: true
+  web-secure:
+    address: ":443"
+    
+log:
+  level: DEBUG
+  #filePath: "/var/log/traefik.log"
+accessLog:
+  filePath: "/var/log/access.log"
+  filters:    
+    statusCodes:
+      - "400-499"
+api:
+  dashboard: true
+
+certificatesResolvers:
+  lets-encrypt:
+    acme:
+      storage: /letsencrypt/acme.json
+      #On some instances, I use DNS challenge in order to have wildcard certificates 
+      #If you're also using OVH : https://medium.com/nephely/configure-traefik-for-the-dns-01-challenge-with-ovh-as-dns-provider-c737670c0434
+      #caServer: https://acme-v02.api.letsencrypt.org/directory  
+      dnsChallenge:
+        provider: ovh
+        delayBeforeCheck: 10
