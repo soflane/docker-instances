@@ -14,7 +14,6 @@ services:
       - --configFile=/custom-conf/static/traefik.${TRAEFIK_ACME_CONFIG}.yml
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./traefik.yml:/etc/traefik/traefik.yml
       - ./traefik-conf/:/custom-conf/
       - ./letsencrypt:/letsencrypt
       - /var/log/traefik:/var/log
