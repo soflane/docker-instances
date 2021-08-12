@@ -1,5 +1,3 @@
-# [WORK IN PROGRESS]
-
 Docker Compose Files
 ===
 
@@ -19,7 +17,7 @@ You will require Docker and Docker Compose
 - 2-4 GB of RAM
 - Linux host is preferred (This configuration is used smoothly on Ubuntu 21.04)
 
-
+*ℹ️ Especially on Linux, make sure your user has the [required permissions](https://docs.docker.com/install/linux/linux-postinstall/) to interact with the Docker daemon.*
 
 #### Install Docker & Compose on Linux 
 
@@ -35,7 +33,7 @@ See [Docker Compose Documentation](https://docs.docker.com/compose/).
 
 
 
-## [Baseline](baseline)
+## [Baseline](baseline)  :white_check_mark:
 The base docker-compose stack with the 'base' stack for web services and docker management :
 
 - [Traefik reverse proxy](https://traefik.io/)
@@ -70,7 +68,7 @@ Credits to [fatedier](https://github.com/fatedier/frp) for his amazing work
 A prometheus stack along with Alertmanager, Grafana, and even a MS teams webhook gateway.
 The setup is already configured to watch HTTP(S)
 
-## [Plex](Plex-server)
+## [Plex](Plex-server)  :white_check_mark:
 This stack is contents all what you need for a Plex server and more : Downloads, ratio faking, dashboard home page (Heimdall)
 
 ## [Snipe-IT](snipe-it)
