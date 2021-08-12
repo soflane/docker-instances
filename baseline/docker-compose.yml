@@ -9,9 +9,6 @@ services:
     env_file: .env
     container_name: traefik
     hostname: ${TRAEFIK_DASHBOARD_HOSTNAME}
-    command:
-      - --certificatesresolvers.myresolver.acme.email=${TRAEFIK_ACME_MAIL}
-      - --configFile=/custom-conf/static/traefik.${TRAEFIK_ACME_CONFIG}.yml
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik-conf/:/custom-conf/
