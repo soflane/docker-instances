@@ -59,7 +59,7 @@ The password manager, self hosted
 
 ## [Fast Reverse Proxy (FRP)](frp-proxy)
 
-A server to host remote reverse proxies behind NATs without having to open ports.
+A server to host a reverse proxy for remote hosts behind NATs without having to open ports.
 
 ![architecture](https://github.com/fatedier/frp/raw/dev/doc/pic/architecture.png)
 
