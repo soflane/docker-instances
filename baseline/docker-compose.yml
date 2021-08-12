@@ -78,8 +78,8 @@ services:
       - traefik.http.routers.netdata.middlewares=security-protocol-pw@file
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
-    ports:
-      - 19999:19999
+    expose:
+      - "19999"
     cap_add:
       - SYS_PTRACE
     security_opt:
