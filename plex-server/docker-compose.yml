@@ -1,0 +1,231 @@
+version: '3.5'
+services: 
+  ######################################
+  #              Media                 #
+  ######################################
+  plex:
+    image: linuxserver/plex
+    env_file: .env
+    container_name: plex
+    hostname: plex
+    network_mode: host
+    environment:
+      UID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TIMEZONE}
+      PLEX_CLAIM: ${PLEX_CLAIM}
+      VERSION: latest
+    labels: 
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+    volumes:
+      - ${PLEX_CONFIG}:/config
+      - ${PLEX_TMP}:/transcode
+      - /mnt:/mnt
+      #- ${HDD1_DIR}:/mnt/HDD1
+      #- ${HDD2_DIR}:/mnt/HDD2
+    restart: always
+  tautulli:
+    image: linuxserver/tautulli
+    env_file: .env
+    container_name: tautulli
+    hostname: ${TAUTULLI_HOSTNAME}
+    environment:
+      UID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TIMEZONE}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tautulli.rule=Host(`${TAUTULLI_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.tautulli.tls.certresolver=lets-encrypt
+      - traefik.http.routers.tautulli.entrypoints=web-secure
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+    volumes:
+      - ${TAUTULLI_CONFIG}:/config
+      - ${TAUTULLI_LOGS}:/logs
+    networks:
+      - traefik
+    ports:
+      - 8181:8181
+    restart: unless-stopped
+  
+  calibre:
+    image: linuxserver/calibre-web
+    container_name: calibre-web
+    hostname: ${CALIBRE_HOSTNAME}
+    env_file: .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.calibre.rule=Host(`${CALIBRE_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.calibre.tls.certresolver=lets-encrypt
+      - traefik.http.routers.calibre.entrypoints=web-secure
+      - traefik.http.services.calibre.loadbalancer.server.port=8083
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+      - DOCKER_MODS=linuxserver/calibre-web:calibre
+    volumes:
+      - ${CALIBRE_CONFIG}:/config
+      - ${CALIBRE_DIR}:/books
+    networks:
+      - traefik
+    expose:
+      - "8083"
+    restart: unless-stopped
+######################################
+#        Transmission torrents       #
+######################################
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    hostname: ${TRANSMISSION_HOSTNAME}
+    env_file: .env
+    labels:
+      - traefik.enable=true
+      #- traefik.docker.network=traefik
+      - traefik.http.routers.transmission.rule=Host(`${TRANSMISSION_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.transmission.tls.certresolver=lets-encrypt
+      - traefik.http.routers.transmission.entrypoints=web-secure
+      - traefik.http.services.transmission.loadbalancer.server.port=9091
+      - traefik.http.routers.transmission.middlewares=security-protocol-pw@file
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TIMEZONE}
+      TRANSMISSION_WEB_HOME: /transmission-web-control/
+    volumes:
+      - ${TRANSMISSION_CONFIG}:/config
+      - /mnt:/mnt
+      #- ${HDD1_DIR}:/mnt/HDD1
+      #- ${HDD2_DIR}:/mnt/HDD2
+    networks: 
+      - traefik
+    ports:
+      - "9091:9091"
+      - "51413:51413"
+    restart: always
+######################################
+#             Sickchill              #
+######################################
+  sickchill:
+    image: linuxserver/sickchill
+    container_name: sickchill
+    hostname: ${SICKCHILL_HOSTNAME}
+    env_file: .env
+    labels:
+      - traefik.enable=true
+      #- traefik.docker.network=traefik
+      - traefik.http.routers.sickchill.rule=Host(`${SICKCHILL_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.sickchill.tls.certresolver=lets-encrypt
+      - traefik.http.routers.sickchill.entrypoints=web-secure
+      #- traefik.http.services.sickchill.loadbalancer.server.port=8081
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TIMEZONE}
+    volumes:
+      - ${SICKCHILL_CONFIG}:/config
+      - /mnt:/mnt
+      #- ${HDD1_DIR}:/mnt/HDD1
+      #- ${HDD2_DIR}:/mnt/HDD2
+    networks:
+      - traefik
+    ports:
+      - 8081:8081
+    restart: unless-stopped
+
+######################################
+#             Couchpotato            #
+######################################
+  couchpotato:
+    image: linuxserver/couchpotato
+    container_name: couchpotato
+    hostname : ${CP_HOSTNAME}
+    env_file: .env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.couchpotato.rule=Host(`${CP_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.couchpotato.tls.certresolver=lets-encrypt
+      - traefik.http.routers.couchpotato.entrypoints=web-secure
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+    volumes:
+      - ${CP_CONFIG}:/config
+      - /mnt:/mnt
+      #- ${HDD1_DIR}:/mnt/HDD1
+      #- ${HDD2_DIR}:/mnt/HDD2
+    networks:
+      - traefik
+    ports:
+      - "5050"
+    restart: always
+######################################
+#        Jackett trackers engine     #
+######################################
+  jackett:
+    image: linuxserver/jackett
+    env_file: .env
+    hostname: ${JACKETT_HOSTNAME}
+    container_name: jackett
+    labels:
+      - traefik.enable=true
+      #- traefik.docker.network=traefik
+      - traefik.http.routers.jackett.rule=Host(`${JACKETT_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.jackett.tls.certresolver=lets-encrypt
+      - traefik.http.routers.jackett.entrypoints=web-secure
+      #- traefik.http.routers.jackett.middlewares=basic-auth@file
+      #- traefik.http.services.jackett.loadbalancer.server.port=9117
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      TZ: ${TIMEZONE}
+      PLEX_CLAIM: ${PLEX_CLAIM}
+      VERSION: latest
+    volumes:
+      - ${JACKETT_CONFIG}:/config
+    networks: 
+      - traefik
+    ports:
+      - 9117:9117
+    restart: unless-stopped
+######################################
+#           Ratio Faker              #
+#          (For torrents)            #
+######################################
+  joal: 
+    image: anthonyraymond/joal
+    container_name: joal
+    hostname: ${JOAL_HOSTNAME}
+    env_file: .env
+    command: ["--joal-conf=/data", "--spring.main.web-environment=true", "--server.port=5081", "--joal.ui.path.prefix=joal", "--joal.ui.secret-token=Trololo", "joal.iframe.enabled=true"]
+    labels: 
+      - traefik.enable=true
+      - traefik.http.routers.joal.rule=Host(`${JOAL_HOSTNAME}.${MAIN_DOMAIN}`)  || Host(`${JOAL_REDIR_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.joal.entrypoints=web-secure
+      - traefik.http.routers.joal.tls.certresolver=lets-encrypt
+      - traefik.http.middlewares.joal-bypass.redirectregex.regex=`(.*)${JOAL_REDIR_HOSTNAME}.${MAIN_DOMAIN}(.*)`
+      - traefik.http.middlewares.joal-bypass.redirectregex.replacement=`https://${JOAL_HOSTNAME}.${MAIN_DOMAIN}/joal/ui?ui_credentials=%7B%0A%20%20%22host%22%3A%20%22${JOAL_HOSTNAME}.${MAIN_DOMAIN}%22%2C%0A%20%20%22port%22%3A%20443%2C%0A%20%20%22pathPrefix%22%3A%20%22joal%22%2C%0A%20%20%22secretToken%22%3A%20%22Trololo%22%0A%7D`
+      - traefik.http.routers.joal.middlewares=joal-bypass
+      #- traefik.http.routers.joal.middlewares=joal-chain@file
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+    volumes:
+      - ${JOAL_CONFIG}:/data
+    networks:
+      - traefik
+    ports:
+      - "5081:5081"
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true
+    name: traefik  
+    
