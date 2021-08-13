@@ -8,6 +8,8 @@ Feel free to use, share and give feedback if you see something to improve, or fo
 
 You will require Docker and Docker Compose
 
+(Stacks with a :white_check_mark: are clean and ready to use​)
+
 # Requirements
 
 ## Host setup
@@ -29,9 +31,36 @@ $ sudo pip install docker-compose
 #### Docker-compose Usage
 See [Docker Compose Documentation](https://docs.docker.com/compose/).
 
+
+
+### Environment variables 
+
+I try to base all the settings that could be changed for personal customization in a .env file although it is not always possible.
+Some environment variables are always present in every stack as "Basic settings" :
+
+| Variable    | Default value   | Usage                                                        |
+| ----------- | --------------- | ------------------------------------------------------------ |
+| PUID        | 1000            | for UserID - see below for explanation                       |
+| PGID/GUID   | 1000            | for GroupID - see below for explanation                      |
+| TIMEZONE/TZ | Europe/Brussels |                                                              |
+| MAIN_DOMAIN | example.com     | Main domain used, the hostname of the other containters will be concatenated |
+
+
+
+### User / Group Identifiers
+
+When using volumes (`-v` flags) permissions issues can arise between the host OS and the container, we avoid this issue by allowing you to specify the user `PUID` and group `PGID`.
+
+Ensure any volume directories on the host are owned by the same user you specify and any permissions issues will vanish like magic.
+
+In this instance `PUID=1000` and `PGID=1000`, to find yours use `id user` as below:
+
+```bash
+  $ id username
+    uid=1000(dockeruser) gid=1000(dockergroup) groups=1000(dockergroup)
+```
+
 # Examples files
-
-
 
 ## [Baseline](baseline)  :white_check_mark:
 The base docker-compose stack with the 'base' stack for web services and docker management :

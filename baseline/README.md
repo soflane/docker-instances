@@ -1,16 +1,11 @@
 # [WORK IN PROGRESS]
 
-
-===
-
 # Baseline 
 
 By default, the stack exposes the HTTP (80) and HTTPS (443) ports
 
 This configuration is mean to be used mainly with environment variables.
 However, ddclient and eventually the traefik dynamic configuration for external hosts
-
-
 
 ### Environment variables 
 
@@ -26,14 +21,10 @@ However, ddclient and eventually the traefik dynamic configuration for external 
 | WATCHTOWER_CLEANUP                                    | true                   | Removes old images after updating.                           |
 | WATCHTOWER_LABEL_ENABLE                               | true                   | Update only containers that have a `com.centurylinklabs.watchtower.enable` label set to true. |
 
-
-
 More informations about environment variables : 
 
 - [Traefik](https://doc.traefik.io/traefik/reference/static-configuration/env/)
 - [Watchtower](https://containrrr.dev/watchtower/arguments/)
-
-
 
 ## Instructions
 
