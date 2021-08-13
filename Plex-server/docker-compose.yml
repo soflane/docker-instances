@@ -21,8 +21,9 @@ services:
     volumes:
       - ${PLEX_CONFIG}:/config
       - ${PLEX_TMP}:/transcode
-      - ${HDD1_DIR}:/mnt/HDD1
-      - ${HDD2_DIR}:/mnt/HDD2
+      - /mnt:/mnt
+      #- ${HDD1_DIR}:/mnt/HDD1
+      #- ${HDD2_DIR}:/mnt/HDD2
     restart: always
   tautulli:
     image: linuxserver/tautulli
@@ -100,8 +101,9 @@ services:
       TRANSMISSION_WEB_HOME: /transmission-web-control/
     volumes:
       - ${TRANSMISSION_CONFIG}:/config
-      - ${HDD1_DIR}:/mnt/HDD1
-      - ${HDD2_DIR}:/mnt/HDD2
+      - /mnt:/mnt
+      #- ${HDD1_DIR}:/mnt/HDD1
+      #- ${HDD2_DIR}:/mnt/HDD2
     networks: 
       - traefik
     ports:
@@ -130,8 +132,9 @@ services:
       TZ: ${TIMEZONE}
     volumes:
       - ${SICKCHILL_CONFIG}:/config
-      - ${HDD1_DIR}:/mnt/HDD1
-      - ${HDD2_DIR}:/mnt/HDD2
+      - /mnt:/mnt
+      #- ${HDD1_DIR}:/mnt/HDD1
+      #- ${HDD2_DIR}:/mnt/HDD2
     networks:
       - traefik
     ports:
@@ -155,8 +158,9 @@ services:
       - com.centurylinklabs.watchtower.enable=true
     volumes:
       - ${CP_CONFIG}:/config
-      - ${HDD1_DIR}:/mnt/HDD1
-      - ${HDD2_DIR}:/mnt/HDD2
+      - /mnt:/mnt
+      #- ${HDD1_DIR}:/mnt/HDD1
+      #- ${HDD2_DIR}:/mnt/HDD2
     networks:
       - traefik
     ports:
