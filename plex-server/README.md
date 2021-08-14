@@ -4,23 +4,37 @@
 
 
 
-- Sickchilll
+- [Sickchilll](https://docs.linuxserver.io/images/docker-sickchill)
 
-- Couchpotato
+- [Couchpotato](https://docs.linuxserver.io/images/docker-couchpotato)
 
-- Transmission
+- [Transmission](https://docs.linuxserver.io/images/docker-transmission)
 
-- Tautulli
+- [Tautulli](https://docs.linuxserver.io/images/docker-tautulli)
 
-- Jackett
+- [Jackett](https://docs.linuxserver.io/images/docker-jackett)
 
-- Plex
+- [Plex](https://docs.linuxserver.io/images/docker-plex)
 
-- Joal
+- [Joal](https://github.com/anthonyraymond/joal) (Torrent ratio faker brought to you by [@anthonyraymond](https://github.com/anthonyraymond))
 
-- Calibre
+- [Calibre](https://docs.linuxserver.io/images/docker-calibre)
 
-  
+
+
+### Environment variables
+
+|      |      |      |
+| ---- | ---- | ---- |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+|      |      |      |
+
+More informations about environment variables :
 
 ## Instructions
 
