@@ -1,0 +1,29 @@
+version: '3.5'
+services: 
+  xxx:
+    image: 
+    env_file: 
+    container_name: 
+    hostname: 
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.xxx.rule=Host(`${TAUTULLI_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.xxx.tls.certresolver=lets-encrypt
+      - traefik.http.routers.xxx.entrypoints=web-secure
+      #Enable Auto-Updates (Watchtower)
+      #- com.centurylinklabs.watchtower.enable=true
+    volumes:
+      - 
+    networks:
+      - traefik
+    expose:
+      - 
+    restart: unless-stopped
+  
+
+
+networks:
+  traefik:
+    external: true
+    name: traefik  
+    
