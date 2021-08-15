@@ -1,0 +1,37 @@
+version: '3.5'
+services: 
+######################################
+#        Webmap       #
+######################################
+  webmap:
+    image: reborntc/webmap
+    container_name: webmap
+    hostname: webmap
+    labels:
+      - traefik.enable=true
+      #- traefik.docker.network=traefik
+      - traefik.http.routers.webmap.rule=Host(`${WEBMAP_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.webmap.tls.certresolver=lets-encrypt
+      - traefik.http.routers.webmap.entrypoints=web-secure
+      - traefik.http.services.webmap.loadbalancer.server.port=8000
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TIMEZONE}
+    volumes:
+      - ./webmap:/opt/xml
+    networks: 
+      - traefik
+    ports:
+      - "8000:8000"
+    restart: always
+
+
+
+networks:
+  traefik:
+    external: true
+    name: traefik  
+    
