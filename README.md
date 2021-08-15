@@ -97,7 +97,7 @@ Credits to [fatedier](https://github.com/fatedier/frp) for his amazing work
 A prometheus stack along with Alertmanager, Grafana, and even a MS teams webhook gateway.
 The setup is already configured to watch HTTP(S)
 
-## [Plex](Plex-server)  :white_check_mark:
+## [Plex](plex-server)  :white_check_mark:
 This stack is contents all what you need for a Plex server and more : Downloads, ratio faking, dashboard home page (Heimdall)
 
 ## [Snipe-IT](snipe-it)
