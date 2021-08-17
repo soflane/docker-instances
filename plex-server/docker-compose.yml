@@ -31,6 +31,11 @@ services:
       - traefik.http.routers.tautulli.entrypoints=web-secure
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Tautulli
+      - flame.url=https://${TAUTULLI_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
     volumes:
       - ${TAUTULLI_CONFIG}:/config
       - ${TAUTULLI_LOGS}:/logs
@@ -53,6 +58,11 @@ services:
       - traefik.http.services.calibre.loadbalancer.server.port=8083
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Calibre E-books
+      - flame.url=https://${CALIBRE_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
     environment:
       - DOCKER_MODS=linuxserver/calibre-web:calibre
     volumes:
@@ -81,6 +91,11 @@ services:
       - traefik.http.routers.transmission.middlewares=security-protocol-pw@file
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Transmission
+      - flame.url=https://${TRANSMISSION_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
     volumes:
       - ${TRANSMISSION_CONFIG}:/config
       - /mnt:/mnt
@@ -109,6 +124,11 @@ services:
       - traefik.http.routers.sickchill.entrypoints=web-secure
       #- traefik.http.services.sickchill.loadbalancer.server.port=8081
       - com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Sickchill
+      - flame.url=https://${SICKCHILL_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
     volumes:
       - ${SICKCHILL_CONFIG}:/config
       - /mnt:/mnt
@@ -135,6 +155,11 @@ services:
       - traefik.http.routers.couchpotato.entrypoints=web-secure
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Couchpotato
+      - flame.url=https://${CP_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
     volumes:
       - ${CP_CONFIG}:/config
       - /mnt:/mnt
@@ -163,6 +188,11 @@ services:
       #- traefik.http.services.jackett.loadbalancer.server.port=9117
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Jackett
+      - flame.url=https://${JACKETT_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
     volumes:
       - ${JACKETT_CONFIG}:/config
     networks: 
@@ -191,6 +221,11 @@ services:
       #- traefik.http.routers.joal.middlewares=joal-chain@file
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Ratio (Joal)
+      - flame.url=https://${JOAL_REDIR_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
     volumes:
       - ${JOAL_CONFIG}:/data
     networks:

@@ -22,11 +22,11 @@ services:
       - traefik.http.routers.proxy-api.tls.certresolver=lets-encrypt
       - traefik.http.routers.proxy-api.service=api@internal
       - traefik.http.routers.proxy-api.tls
-      # global redirect to https
-      #- traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
-      #- traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)
-      #- traefik.http.routers.http-catchall.entrypoints=web
-      #- traefik.http.routers.http-catchall.middlewares=redirect-to-https
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Traefik
+      - flame.url=https://${TRAEFIK_DASHBOARD_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
     networks:
       - traefik
     expose:
@@ -53,6 +53,12 @@ services:
       - traefik.http.services.portainer.loadbalancer.server.port=9000
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Portainer
+      - flame.url=https://${PORTAINER_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
+      
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - data:/data
@@ -78,6 +84,11 @@ services:
       - traefik.http.routers.netdata.middlewares=security-protocol-pw@file
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Netdata
+      - flame.url=https://${NETDATA_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
     expose:
       - "19999"
     cap_add:
