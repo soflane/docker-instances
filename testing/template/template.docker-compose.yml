@@ -2,17 +2,23 @@ version: '3.5'
 services: 
   xxx:
     image: 
-    env_file: 
+    env_file: .env
     container_name: 
-    hostname: 
+    hostname: ${XXX_HOSTNAME}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.xxx.rule=Host(`${TAUTULLI_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.xxx.rule=Host(`${XXX_HOSTNAME}.${MAIN_DOMAIN}`)
       - traefik.http.routers.xxx.tls.certresolver=lets-encrypt
       - traefik.http.routers.xxx.entrypoints=web-secure
+      #- traefik.http.routers.xxx.middlewares=basic-auth@file
       #Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
-    volumes:
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=
+      - flame.url=https://${XXX_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
+    volumes:  
       - 
     networks:
       - traefik
