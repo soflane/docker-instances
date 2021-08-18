@@ -1,0 +1,70 @@
+version: '3.5'
+services: 
+  db:
+    image: mariadb:10.5
+    env_file: .env
+    container_name: db
+    hostname: db
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    networks:
+      - traefik
+    expose:
+      - 3306
+    volumes:
+      - ${MARIADB_CONFIG}:/var/lib/mysql
+  nexcloud:
+    image: nextcloud:21.0.3-apache
+    env_file: .env
+    container_name: nextcloud
+    hostname: nextcloud #${NEXTCLOUD_HOSTNAME}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nextcloud.rule=Host(`${NEXTCLOUD_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.nextcloud.tls.certresolver=lets-encrypt
+      - traefik.http.routers.nextcloud.entrypoints=web-secure
+      #- traefik.http.routers.nextcloud.middlewares=basic-auth@file
+      #Enable Auto-Updates (Watchtower)
+      #- com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Nextcloud
+      - flame.url=https://${NEXTCLOUD_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
+    volumes:  
+      - ${NEXTCLOUD_CONFIG}:/var/www/html
+    networks:
+      - traefik
+    expose:
+      - 80
+    restart: unless-stopped
+
+  adminer:
+    image: adminer
+    env_file: .env
+    container_name: adminer
+    hostname: adminer #${NEXTCLOUD_HOSTNAME}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.adminer.rule=Host(`${ADMINER_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.adminer.tls.certresolver=lets-encrypt
+      - traefik.http.routers.adminer.entrypoints=web-secure
+      - traefik.http.routers.adminer.middlewares=basic-auth@file
+      #Enable Auto-Updates (Watchtower)
+      #- com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=adminer
+      - flame.url=https://${ADMINER_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
+    networks:
+      - traefik
+    expose:
+      - 8080
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true
+    name: traefik  
+    
