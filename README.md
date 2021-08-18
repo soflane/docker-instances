@@ -92,6 +92,14 @@ A server to host a reverse proxy for remote hosts behind NATs without having to 
 
 Credits to [fatedier](https://github.com/fatedier/frp) for his amazing work
 
+## [NextCloud](nextcloud)
+
+
+
+## [Send](send)
+
+A fork of Firefox Send, and alternative to WeTransfer
+
 ## [Prometheus](prometheus)
 
 A prometheus stack along with Alertmanager, Grafana, and even a MS teams webhook gateway.
