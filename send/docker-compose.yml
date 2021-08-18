@@ -1,0 +1,33 @@
+version: '3.5'
+services: 
+  send:
+    image: registry.gitlab.com/timvisee/send:latest
+    env_file: .env
+    container_name: send
+    hostname: ${SEND_HOSTNAME}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.send.rule=Host(`${SEND_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.send.tls.certresolver=lets-encrypt
+      - traefik.http.routers.send.entrypoints=web-secure
+      #- traefik.http.routers.sendpsi-transferddlewares=basic-auth@file
+      #Enable Auto-Updates (Watchtower)
+      #- com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Send
+      - flame.url=https://${SEND_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
+    volumes:  
+      - ./uploads-send:/uploads
+    networks:
+      - traefik
+    expose:
+      - 1443
+    restart: unless-stopped
+  
+networks:
+  traefik:
+    external: true
+    name: traefik  
+    
