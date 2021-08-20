@@ -12,7 +12,7 @@ However, ddclient and eventually the traefik dynamic configuration for external 
 | Variable                                              | Default value          | Usage                                                        |
 | ----------------------------------------------------- | ---------------------- | ------------------------------------------------------------ |
 | MAIN_DOMAIN                                           | example.com            | Main domain used, the hostname of the other containters will be concatenated |
-| BASIC_AUTH_USER                                       |                        | User/Password user for the Traefik's basic auth htaccess     |
+| BASIC_AUTH_USER                                       |                        | User/Password user for the Traefik's basic auth htaccess ([htpasswd generator](https://www.web2generators.com/apache-tools/htpasswd-generator)) |
 | PORTAINER_HOSTNAME                                    | docker                 | Hostname of the container, from outside it will be docker.example.com |
 | NETDATA_HOSTNAME                                      | host                   | Same as above                                                |
 | TRAEFIK_DASHBOARD_HOSTNAME                            | proxy                  | Same as above                                                |
