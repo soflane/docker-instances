@@ -13,6 +13,7 @@ http:
       basicAuth:
         users:
           - '{{env "BASIC_AUTH_USER"}}'
+        usersFile: "/custom-conf/auth-users.txt"
   #
   #     If you don't use joal, just delete the following middleware 
   #     
