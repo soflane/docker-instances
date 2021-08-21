@@ -58,6 +58,7 @@ http:
           X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex,"
           server: ""
           Permissions-Policy: "geolocation=(self 'https://*.{{env "MAIN_DOMAIN"}}'), microphone=()"
+          #Permissions-Policy: "geolocation=(self), microphone=(), camera=(), fullscreen=*""
           #Content-Security-Policy: "default-src 'self'"
     rate-limit:
       rateLimit: 
