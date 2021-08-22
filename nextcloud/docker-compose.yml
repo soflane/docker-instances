@@ -14,7 +14,7 @@ services:
     volumes:
       - ${MARIADB_CONFIG}:/var/lib/mysql
   nexcloud:
-    image: nextcloud:21.0.3-apache
+    image: nextcloud:apache
     env_file: .env
     container_name: nextcloud
     hostname: nextcloud #${NEXTCLOUD_HOSTNAME}
@@ -24,6 +24,9 @@ services:
       - traefik.http.routers.nextcloud.tls.certresolver=lets-encrypt
       - traefik.http.routers.nextcloud.entrypoints=web-secure
       #- traefik.http.routers.nextcloud.middlewares=basic-auth@file
+      - traefik.http.middlewares.cloud_redirectregex.redirectregex.regex=/.well-known/(card|cal)dav
+      - traefik.http.middlewares.cloud_redirectregex.redirectregex.replacement=/remote.php/dav/
+      - traefik.http.middlewares.cloud_headers.headers.customRequestHeaders.X-Forwarded-Proto=https
       #Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
       #Enable flame dashboard link
@@ -33,8 +36,9 @@ services:
       #- flame.icon=icon-name # Optional, default is "docker"
     volumes:  
       - ${NEXTCLOUD_CONFIG}:/var/www/html
+      - ${NEXTCLOUD_DATA}:/var/www/html/data
     networks:
-      - traefik
+      - traefiks
     expose:
       - 80
     restart: unless-stopped
