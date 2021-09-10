@@ -13,7 +13,8 @@ services:
       - 3306
     volumes:
       - ${MARIADB_CONFIG}:/var/lib/mysql
-  nexcloud:
+
+  nextcloud:
     image: nextcloud:apache
     env_file: .env
     container_name: nextcloud
@@ -38,10 +39,31 @@ services:
       - ${NEXTCLOUD_CONFIG}:/var/www/html
       - ${NEXTCLOUD_DATA}:/var/www/html/data
     networks:
-      - traefiks
+      - traefik
     expose:
       - 80
     restart: unless-stopped
+
+  cron:
+    image: nextcloud:apache
+    restart: always
+    volumes:
+      - ${NEXTCLOUD_CONFIG}:/var/www/html
+      - ${NEXTCLOUD_DATA}:/var/www/html/data
+    entrypoint: /cron.sh
+    networks:
+      - traefik
+    depends_on:
+      - db
+      - redis_nextcloud
+  
+  redis_nextcloud:
+    image: redis:alpine
+    hostname: redis_nextcloud
+    container_name: redis_nextcloud
+    networks:
+      - traefik
+    restart: always
 
   adminer:
     image: adminer
@@ -53,7 +75,7 @@ services:
       - traefik.http.routers.adminer.rule=Host(`${ADMINER_HOSTNAME}.${MAIN_DOMAIN}`)
       - traefik.http.routers.adminer.tls.certresolver=lets-encrypt
       - traefik.http.routers.adminer.entrypoints=web-secure
-      - traefik.http.routers.adminer.middlewares=basic-auth@file
+      #- traefik.http.routers.adminer.middlewares=basic-auth@file
       #Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
       #Enable flame dashboard link
@@ -66,7 +88,7 @@ services:
     expose:
       - 8080
     restart: unless-stopped
-
+  
 networks:
   traefik:
     external: true
