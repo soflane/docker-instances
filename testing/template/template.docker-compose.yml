@@ -19,7 +19,7 @@ services:
       - flame.url=https://${XXX_HOSTNAME}.${MAIN_DOMAIN}
       #- flame.icon=icon-name # Optional, default is "docker"
     volumes:  
-      - 
+      - ${XXX_CONFIG}:/config
     networks:
       - traefik
     expose:
