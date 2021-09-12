@@ -101,15 +101,17 @@ The name says it all. However if you have any doubt, [here it is](https://nextcl
 
 A fork of Firefox Send, and alternative to WeTransfer
 
+## [Snipe-IT](snipe-it) :white_check_mark:
+
+[Snipe-it](https://github.com/snipe/snipe-it) makes asset management easy. It was built by people solving real-world IT and asset management problems, and a solid UX has always been a top priority. Straightforward design and bulk actions mean getting things done faster.	
+
+## [Plex](plex-server) :white_check_mark::memo:
+This stack is contents all what you need for a Plex server and more : Downloads (& management), ratio faking, dashboard home page (Heimdall)
+
 ## [Prometheus](prometheus)
 
 A prometheus stack along with Alertmanager, Grafana, and even a MS teams webhook gateway.
 The setup is already configured to watch HTTP(S)
-
-## [Plex](plex-server)  :white_check_mark::memo:
-This stack is contents all what you need for a Plex server and more : Downloads (& management), ratio faking, dashboard home page (Heimdall)
-
-## [Snipe-IT](snipe-it)
 
 
 ## [Zammad](zammad-support) :white_check_mark::memo:
