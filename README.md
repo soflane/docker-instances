@@ -89,8 +89,7 @@ The password manager, self hosted
 ## [Fast Reverse Proxy (FRP)](frp-proxy) :white_check_mark: 
 
 A server to host a reverse proxy for remote hosts behind NATs without having to open ports.
-
-<img src="https://github.com/fatedier/frp/raw/dev/doc/pic/architecture.png" alt="architecture" style="zoom: 70%;text-align:center" />	
+<p align="center"><img src="https://github.com/fatedier/frp/raw/dev/doc/pic/architecture.png" alt="architecture" style="zoom: 70%;"/></p>
 
 Credits to [fatedier](https://github.com/fatedier/frp) for his amazing work
 
