@@ -29,7 +29,7 @@ services:
     expose:
       - 80
     networks:
-      - proxy
+      - traefik
     restart: unless-stopped
 networks:
   traefik:
