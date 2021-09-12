@@ -1,0 +1,84 @@
+version: '3.5'
+services: 
+  deemix:
+    image: registry.gitlab.com/bockiii/deemix-docker
+    env_file: .env
+    container_name: deemix
+    hostname: ${DEEMIX_HOSTNAME}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.deemix.rule=Host(`${DEEMIX_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.deemix.tls.certresolver=lets-encrypt
+      - traefik.http.routers.deemix.entrypoints=web-secure
+      #Enable Auto-Updates (Watchtower)
+      #- com.centurylinklabs.watchtower.enable=true
+    volumes:
+      - ${DEEMIX_DOWNLOADS}:/downloads
+      - ${DEEMIX_CONFIG}:/config
+    networks:
+      - traefik
+    expose:
+      - 6595 
+    restart: unless-stopped
+  
+#  deemon:
+#    image: ghcr.io/digitalec/deemon:latest
+#    env_file: .env
+#    container_name: deemon
+#    hostname: ${DEEMON_HOSTNAME}
+#    labels:
+#      - traefik.enable=true
+#      - traefik.http.routers.xxx.rule=Host(`${DEEMON_HOSTNAME}.${MAIN_DOMAIN}`)
+#      - traefik.http.routers.xxx.tls.certresolver=lets-encrypt
+#      - traefik.http.routers.xxx.entrypoints=web-secure
+#      - traefik.http.routers.xxx.middlewares=basic-auth@file
+#      #Enable Auto-Updates (Watchtower)
+#      - com.centurylinklabs.watchtower.enable=true
+#    volumes:
+#      - ${DEEMON_CONFIG}:/config 
+#      - ${DEEMIX_DOWNLOADS}:/downloads 
+#      - ${DEEMIX_CONFIG}:/deemix  
+#      - ${DEEMON_IMPORT}:/import 
+#    #networks:
+#    #  - traefik
+#    restart: unless-stopped 
+#
+
+
+
+
+  ultrasonics:
+    image: xdgfx/ultrasonics
+    env_file: .env
+    container_name: ultrasonics
+    hostname: ${ULTRASONIC_HOSTNAME}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.ultrasonics.rule=Host(`${ULTRASONIC_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.ultrasonics.tls.certresolver=lets-encrypt
+      - traefik.http.routers.ultrasonics.entrypoints=web-secure
+      - traefik.http.routers.ultrasonics.middlewares=basic-auth@file
+      #Enable Auto-Updates (Watchtower)
+      #- com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Ultrasonics
+      - flame.url=https://${ULTRASONIC_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
+    volumes:  
+      - ${ULTRASONIC_CONFIG}:/config
+      - ${ULTRASONIC_PLUGINS}:/plugins
+      - ${LOCAL_PLAYLISTS_FOLDER}:/playlists
+      - ${LOCAL_MUSIC_FOLDER}:/music
+    networks:
+      - traefik
+    expose:
+      - 5000
+    restart: unless-stopped
+
+
+networks:
+  traefik:
+    external: true
+    name: traefik  
+    
