@@ -14,6 +14,7 @@ services:
       - traefik.http.routers.webmap.tls.certresolver=lets-encrypt
       - traefik.http.routers.webmap.entrypoints=web-secure
       - traefik.http.services.webmap.loadbalancer.server.port=8000
+      - traefik.http.routers.webmap.middlewares=basic-auth@file
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
     environment:
@@ -24,8 +25,8 @@ services:
       - ./webmap:/opt/xml
     networks: 
       - traefik
-    ports:
-      - "8000:8000"
+    expose:
+      - 8000
     restart: always
 
 
