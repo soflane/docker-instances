@@ -11,21 +11,21 @@ This configuration is mean to be used with environment variables.
 
 For the rest you can check the 'Application Setup' section of each following service:
 
-- [Sickchilll](https://docs.linuxserver.io/images/docker-sickchill) (Git)
+- [Sickchilll](https://docs.linuxserver.io/images/docker-sickchill) ([Git](https://sickchill.github.io/))
 
-- [Couchpotato](https://docs.linuxserver.io/images/docker-couchpotato) (Git)
+- [Couchpotato](https://docs.linuxserver.io/images/docker-couchpotato) ([Git](https://github.com/CouchPotato/CouchPotatoServer) - [Site](https://couchpota.to/))
 
 - [Transmission](https://docs.linuxserver.io/images/docker-transmission)
 
-- [Tautulli](https://docs.linuxserver.io/images/docker-tautulli) (Git)
+- [Tautulli](https://docs.linuxserver.io/images/docker-tautulli) ([Git](https://github.com/Tautulli/Tautulli) - [Site](https://tautulli.com/))
 
-- [Jackett](https://docs.linuxserver.io/images/docker-jackett) (Git)
+- [Jackett](https://docs.linuxserver.io/images/docker-jackett) ([Git](https://github.com/Jackett/Jackett))
 
 - [Plex](https://docs.linuxserver.io/images/docker-plex)
 
 - [Joal](https://github.com/anthonyraymond/joal) (Torrent ratio faker brought to you by [@anthonyraymond](https://github.com/anthonyraymond))
 
-- [Calibre](https://docs.linuxserver.io/images/docker-calibre) (Git ?)
+- [Calibre-web](https://docs.linuxserver.io/images/docker-calibre) ([Git](https://github.com/janeczku/calibre-web) - [Site](https://calibre-ebook.com/))
 
 All theses services are automatically updated on the latest Docker image if there is an update on Docker hub. 
 If you don't want this bevahior, you should comment or remove the following label for the Docker container you don't want to be updated :
