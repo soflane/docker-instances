@@ -35,7 +35,30 @@ services:
       - 80:80
       - 443:443
     restart: unless-stopped
-    
+######################################
+#            Dashboard               #
+###################################### 
+  flame:
+      image: pawelmalak/flame:latest
+      container_name: flame
+      hostname: ${FLAME_HOSTNAME}    
+      env_file: .env
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.flame.entrypoints=web-secure
+        - traefik.http.routers.flame.rule=Host(`${FLAME_HOSTNAME}.${MAIN_DOMAIN}`)
+        - traefik.http.routers.flame.tls.certresolver=lets-encrypt
+        - traefik.http.routers.flame.middlewares=basic-auth@file
+        #Enable Auto-Updates (Watchtower)
+        - com.centurylinklabs.watchtower.enable=true
+      volumes:
+        - ${FLAME_CONFIG}:/app/data
+        - /var/run/docker.sock:/var/run/docker.sock # optional but required for Docker integration feature
+      networks:
+        - traefik
+      expose:
+        - 5005
+      restart: unless-stopped
 ######################################
 #            Portainer               #
 ######################################   

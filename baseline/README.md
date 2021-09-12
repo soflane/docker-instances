@@ -1,11 +1,39 @@
-# [WORK IN PROGRESS]
-
 # Baseline 
+
+### About
+
+This is the base Docker stack that come with any web services host. It comes with the necessary tools to manage docker containers and a reverse proxy to expose any service.
+
+This stack composes :
+
+-  [Traefik](https://traefik.io/) 
+- [Flame](https://github.com/pawelmalak/flame) 
+- [Portainer](https://www.portainer.io/)
+- [Netdata](https://www.netdata.cloud/)
+- [ddclient](https://docs.linuxserver.io/images/docker-ddclient)
+- [Watchtower](https://github.com/containrrr/watchtower)
 
 By default, the stack exposes the HTTP (80) and HTTPS (443) ports
 
 This configuration is mean to be used mainly with environment variables.
 However, ddclient and eventually the traefik dynamic configuration for external hosts
+
+#### Side note about Flame
+
+Flame is a dashboard/start page for your server. The choice of using this one especially was made because of the easy setup brought by @pawelmalak. To add a link to your start page you can add it directly from the UI (for external links) or you can simply add the following labels to your web service *: 
+
+```yaml
+labels:
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=app-name
+      - flame.url=https://yourlink.com
+      - flame.icon=icon-name # Optional, default is "docker"
+```
+
+The icon names can be found at [Material Design Icons](https://materialdesignicons.com/).
+
+*: I will update the labels in other compose files later
 
 ### Environment variables 
 
@@ -24,7 +52,7 @@ However, ddclient and eventually the traefik dynamic configuration for external 
 More informations about environment variables : 
 
 - [Traefik](https://doc.traefik.io/traefik/reference/static-configuration/env/)
-- [Watchtower](https://containrrr.dev/watchtower/arguments/)
+  - [Watchtower](https://containrrr.dev/watchtower/arguments/)
 
 ## Instructions
 
