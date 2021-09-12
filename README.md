@@ -8,7 +8,9 @@ Feel free to use, share and give feedback if you see something to improve, or fo
 
 You will require Docker and Docker Compose
 
-(Stacks with a :white_check_mark: are clean and ready to use​)
+Stacks with a :white_check_mark: are clean and ready to use​.
+
+Stacks with a :memo: are well-documented.
 
 # Requirements
 
@@ -62,7 +64,7 @@ In this instance `PUID=1000` and `PGID=1000`, to find yours use `id user` as bel
 
 # Examples files
 
-## [Baseline](baseline)  :white_check_mark:
+## [Baseline](baseline)  :white_check_mark::memo:
 The base docker-compose stack with the 'base' stack for web services and docker management :
 
 - [Traefik reverse proxy](https://traefik.io/)
@@ -84,19 +86,19 @@ Every web services will be routed into Traefik in order to enhance security (HTT
 
 The password manager, self hosted
 
-## [Fast Reverse Proxy (FRP)](frp-proxy)
+## [Fast Reverse Proxy (FRP)](frp-proxy) :white_check_mark: 
 
 A server to host a reverse proxy for remote hosts behind NATs without having to open ports.
 
-![architecture](https://github.com/fatedier/frp/raw/dev/doc/pic/architecture.png)
+<img src="https://github.com/fatedier/frp/raw/dev/doc/pic/architecture.png" alt="architecture" style="zoom: 70%;text-align:center" />	
 
 Credits to [fatedier](https://github.com/fatedier/frp) for his amazing work
 
-## [NextCloud](nextcloud)
+## [NextCloud](nextcloud) :white_check_mark: 
 
+The name says it all. However if you have any doubt, [here it is](https://nextcloud.com/).
 
-
-## [Send](send) 
+## [Send](send) :white_check_mark: 
 
 A fork of Firefox Send, and alternative to WeTransfer
 
@@ -105,13 +107,13 @@ A fork of Firefox Send, and alternative to WeTransfer
 A prometheus stack along with Alertmanager, Grafana, and even a MS teams webhook gateway.
 The setup is already configured to watch HTTP(S)
 
-## [Plex](plex-server)  :white_check_mark:
+## [Plex](plex-server)  :white_check_mark::memo:
 This stack is contents all what you need for a Plex server and more : Downloads (& management), ratio faking, dashboard home page (Heimdall)
 
 ## [Snipe-IT](snipe-it)
 
 
-## [Zammad](zammad-support)
+## [Zammad](zammad-support) :white_check_mark::memo:
 Zammad ticketing system
 
 # TO-DO
