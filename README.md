@@ -37,7 +37,7 @@ See [Docker Compose Documentation](https://docs.docker.com/compose/).
 
 ### Environment variables 
 
-I try to base all the settings that could be changed for personal customization in a .env file although it is not always possible.
+I try to base all the settings that could be changed for personal customization in a `.env` file although it is not always possible.
 Some environment variables are always present in every stack as "Basic settings" :
 
 | Variable    | Default value   | Usage                                                        |
