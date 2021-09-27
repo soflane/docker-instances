@@ -96,8 +96,10 @@ services:
   netdata:
     container_name: netdata
     env_file: .env
-    image: netdata/netdata
+    image: netdata/netdata:stable
     hostname: ${NETDATA_HOSTNAME} # set to fqdn of host
+    #environment :
+    #  - DOCKER_USR=root
     labels:
       - traefik.enable=true
       - traefik.docker.network=traefik
@@ -121,8 +123,15 @@ services:
     networks: 
       - traefik
     volumes:
+      #- ./netdataconfig/netdata:/etc/netdata:ro   ## See : https://learn.netdata.cloud/docs/agent/packaging/docker#host-editable-configuration
+      - netdataconfig:/etc/netdata
+      - netdatalib:/var/lib/netdata
+      - netdatacache:/var/cache/netdata
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
+      - /etc/passwd:/host/etc/passwd:ro 
+      - /etc/group:/host/etc/group:ro
+      - /etc/os-release:/host/etc/os-release:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: always
 ######################################
@@ -150,7 +159,9 @@ services:
   watchtower:
     image: containrrr/watchtower
     env_file: .env
-    container_name: watchtower
+    container_name: 
+    hostname: watchtower    #helps watchtower write container names instead of IDs in notifications
+
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
@@ -160,3 +171,6 @@ networks:
     name: traefik  
 volumes:
   data:
+  netdataconfig:
+  netdatalib:
+  netdatacache:

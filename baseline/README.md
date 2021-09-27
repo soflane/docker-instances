@@ -7,11 +7,15 @@ This is the base Docker stack that come with any web services host. It comes wit
 This stack composes :
 
 -  [Traefik](https://traefik.io/) 
-- [Flame](https://github.com/pawelmalak/flame) 
-- [Portainer](https://www.portainer.io/)
-- [Netdata](https://www.netdata.cloud/)
-- [ddclient](https://docs.linuxserver.io/images/docker-ddclient)
-- [Watchtower](https://github.com/containrrr/watchtower)
+   Reverse proxy for Docker container with automatic Lets encrypt certificates creation.
+-  [Flame](https://github.com/pawelmalak/flame) 
+   Dashboard automatically updates by containers labels.
+-  [Portainer](https://www.portainer.io/)
+-  [Netdata](https://www.netdata.cloud/)
+-  [ddclient](https://docs.linuxserver.io/images/docker-ddclient)
+   DynDNS client
+-  [Watchtower](https://github.com/containrrr/watchtower) 
+   Automatic Docker images updates
 
 By default, the stack exposes the HTTP (80) and HTTPS (443) ports
 
