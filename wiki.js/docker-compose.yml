@@ -1,0 +1,81 @@
+version: '3.5'
+services: 
+  wikijs:
+    image: requarks/wiki:2
+    env_file: .env
+    container_name: wikijs
+    hostname: ${WIKIJS_HOSTNAME}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.wikijs.rule=Host(`${WIKIJS_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.wikijs.tls.certresolver=lets-encrypt
+      - traefik.http.routers.wikijs.entrypoints=web-secure
+      #- traefik.http.routers.wikijs.middlewares=basic-auth@file
+      #Enable Auto-Updates (Watchtower)
+      #- com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Wiki
+      - flame.url=https://${WIKIJS_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
+    depends_on:
+      - wikidb
+    networks:
+      - traefik
+    expose:
+      - 3000
+    restart: unless-stopped
+
+
+# ATTENTION ! Adminer is a duplicate from nextcloud config 
+# Security tought : Use for DEBUG & DEVELOPMENT only 
+
+#  adminer-wiki:
+#    image: adminer
+#    env_file: .env
+#    container_name: adminer-wiki
+#    hostname: adminer-wiki #${ADMINER_HOSTNAME}
+#    labels:
+#      - traefik.enable=true
+#      - traefik.http.routers.adminer-wiki.rule=Host(`${ADMINER_WIKI_HOSTNAME}.${MAIN_DOMAIN}`)
+#      - traefik.http.routers.adminer-wiki.tls.certresolver=lets-encrypt
+#      - traefik.http.routers.adminer-wiki.entrypoints=web-secure
+#      #- traefik.http.routers.adminer-wiki.middlewares=basic-auth@file
+#      #Enable Auto-Updates (Watchtower)
+#      #- com.centurylinklabs.watchtower.enable=true
+#      #Enable flame dashboard link
+#      - flame.type=application # "app" works too
+#      - flame.name=adminer-wiki
+#      - flame.url=https://${ADMINER_WIKI_HOSTNAME}.${MAIN_DOMAIN}
+#      #- flame.icon=icon-name # Optional, default is "docker"
+#    networks:
+#      - traefik
+#    expose:
+#      - 8080
+#    restart: unless-stopped
+
+  wikidb:
+    image: postgres:11-alpine
+    container_name: wikijsdb
+    hostname: ${WIKIDB_HOSTNAME}
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_USER: ${DB_USER}
+    networks:
+      - traefik
+    logging:
+      driver: "none"
+    restart: unless-stopped
+    volumes:
+      - ${DB_DATA}:/var/lib/postgresql/data
+
+
+volumes:
+  db-data:
+
+networks:
+  traefik:
+    external: true
+    name: proxy  
+    

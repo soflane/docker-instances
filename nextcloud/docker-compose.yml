@@ -65,6 +65,8 @@ services:
       - traefik
     restart: always
 
+# Security tought : Use for DEBUG & DEVELOPMENT only 
+
   adminer:
     image: adminer
     env_file: .env
