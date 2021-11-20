@@ -1,0 +1,111 @@
+version: '3.5'
+services: 
+  bookstack:
+    image: lscr.io/linuxserver/bookstack
+    env_file: .env
+    container_name: bookstack
+    hostname: ${BOOKSTACK_HOSTNAME}
+    depends_on:
+       - bookstack_db       
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.bookstack.rule=Host(`${BOOKSTACK_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.bookstack.tls.certresolver=lets-encrypt
+      - traefik.http.routers.bookstack.entrypoints=web-secure
+      #- traefik.http.routers.bookstack.middlewares=basic-auth@file
+      #Enable Auto-Updates (Watchtower)
+      #- com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=docu
+      - flame.url=https://${BOOKSTACK_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
+    volumes:  
+      - ${BOOKSTACK_CONFIG}:/config
+      - ./.env:/config/www/.env
+    networks:
+      - traefik
+      - bookstack-core
+    expose:
+      - 6875
+    restart: unless-stopped
+
+  redis_bookstack:
+    image: redis:alpine
+    hostname: redis_bookstack
+    container_name: redis_bookstack
+    networks:
+      - bookstack-core
+    restart: always
+
+  bookstack_db:
+    image: lscr.io/linuxserver/mariadb
+    env_file: .env
+    hostname: ${DB_HOST}
+    container_name: ${DB_HOST}
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    networks:
+      - bookstack-core
+    volumes:
+      - ${DB_PATH}:/config
+    restart: unless-stopped
+
+  mysql-cron-backup:
+    image: fradelg/mysql-cron-backup
+    container_name: mysql-cron-backup
+    env_file: .env
+    depends_on:
+      - bookstack_db
+    networks:
+      - bookstack-core
+    volumes:
+      - ${DB_BACKUP_PATH}:/backup
+    environment:
+      - MYSQL_HOST=${DB_HOST}
+      - MYSQL_PASS=${DB_PASSWORD}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - CRON_TIME=${BACKUP_CRON_TIME}
+      - GZIP_LEVEL=${BACKUP_GZIP_LEVEL}
+    restart: unless-stopped
+ # adminer:
+ #   image: adminer
+ #   env_file: .env
+ #   container_name: adminer
+ #   hostname: adminer #${NEXTCLOUD_HOSTNAME}
+ #   labels:
+ #     - traefik.enable=true
+ #     - traefik.docker.network=traefik
+ #     - traefik.http.routers.adminer.rule=Host(`DB.${MAIN_DOMAIN}`)
+ #     - traefik.http.routers.adminer.tls.certresolver=lets-encrypt
+ #     - traefik.http.routers.adminer.entrypoints=web-secure
+ #     #- traefik.http.routers.adminer.middlewares=basic-auth@file
+ #     #Enable Auto-Updates (Watchtower)
+ #     #- com.centurylinklabs.watchtower.enable=true
+ #     #Enable flame dashboard link
+ #     - flame.type=application # "app" works too
+ #     - flame.name=adminer
+ #     - flame.url=https://db.${MAIN_DOMAIN}
+ #     #- flame.icon=icon-name # Optional, default is "docker"
+ #   networks:
+ #     - traefik
+ #     - bookstack-core
+ #   expose:
+ #     - 8080
+ #   restart: unless-stopped
+
+
+networks:
+  traefik:
+    external: true
+    name: traefik  
+  bookstack-core:
+    name: bookstack-core
+
+    
+
+    

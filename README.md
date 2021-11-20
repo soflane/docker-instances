@@ -23,6 +23,8 @@ Stacks with a :memo: are well-documented.
 
 *ℹ️ Especially on Linux, make sure your user has the [required permissions](https://docs.docker.com/install/linux/linux-postinstall/) to interact with the Docker daemon.*
 
+You may also want to setup [automatic APT updates (with mail notifications)](https://github.com/soflane/SwissArmyKnife/blob/master/linux/Unatended-upgrades.md) on your host to ease your management. 
+
 #### Install Docker & Compose on Linux 
 
 ```bash
@@ -85,6 +87,10 @@ Every web services will be routed into Traefik in order to enhance security (HTT
 ## [Bitwarden](bitwarden)
 
 The password manager, self hosted
+
+## [Bookstack](bookstack):white_check_mark:
+
+[BookStack](https://www.bookstackapp.com/) is a simple, self-hosted, easy-to-use platform for organizing and storing information. It allows for documentation to be stored in a book like fashion.
 
 ## [Fast Reverse Proxy (FRP)](frp-proxy) :white_check_mark: 
 
