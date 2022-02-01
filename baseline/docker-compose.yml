@@ -5,7 +5,7 @@ services:
 ######################################   
 
   traefik:
-    image: traefik:v2.3
+    image: traefik:v2.6
     env_file: .env
     container_name: traefik
     hostname: ${TRAEFIK_DASHBOARD_HOSTNAME}
