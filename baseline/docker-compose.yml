@@ -5,6 +5,7 @@ services:
 ######################################   
 
   traefik:
+    # PLEASE keep tags, because WatchTower will auto update this image
     image: traefik:v2.6
     env_file: .env
     container_name: traefik
@@ -27,6 +28,8 @@ services:
       - flame.name=Traefik
       - flame.url=https://${TRAEFIK_DASHBOARD_HOSTNAME}.${MAIN_DOMAIN}
       #- flame.icon=icon-name # Optional, default is "docker"
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
     networks:
       - traefik
     expose:
