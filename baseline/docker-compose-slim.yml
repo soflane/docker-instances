@@ -1,0 +1,73 @@
+version: "3.5"
+services:
+######################################
+#        Traefik Reverse Proxy       #
+######################################   
+  traefik:
+    # PLEASE keep tags, because WatchTower will auto update this image
+    image: traefik:v2.6
+    env_file: .env
+    container_name: traefik
+    hostname: ${TRAEFIK_DASHBOARD_HOSTNAME}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik-conf/:/custom-conf/
+      - ./letsencrypt:/letsencrypt
+      - /var/log/traefik:/var/log
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.proxy-api.rule=Host(`${TRAEFIK_DASHBOARD_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.proxy-api.middlewares=security-protocol-pw@file
+      - traefik.http.routers.proxy-api.entrypoints=web-secure
+      - traefik.http.routers.proxy-api.tls.certresolver=lets-encrypt
+      - traefik.http.routers.proxy-api.service=api@internal
+      - traefik.http.routers.proxy-api.tls
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=Traefik
+      - flame.url=https://${TRAEFIK_DASHBOARD_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+    networks:
+      - traefik
+    expose:
+      - 8080
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+######################################
+#               DNS                  #
+######################################
+  ddclient:
+    image: linuxserver/ddclient
+    container_name: ddclient
+    labels:
+      - traefik.enable=false
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${DDCLIENT_CONFIG}:/config
+    restart: unless-stopped
+######################################
+#              Watchtower            #
+#      Auto-update containers        #
+# CAUTION! USE THIS WITH IMAGES TAGS #
+###################################### 
+  watchtower:
+    image: containrrr/watchtower
+    env_file: .env
+    container_name: watchtower
+    hostname: watchtower    #helps watchtower write container names instead of IDs in notifications
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+networks:
+  traefik:
+    name: traefik  
