@@ -33,6 +33,10 @@ http:
           - GET
           - OPTIONS
           - PUT
+        accessControlAllowHeaders:
+          - "*"
+        accessControlAllowOriginList:
+          - "*"
         addVaryHeader: true
         accessControlMaxAge: 100
         hostsProxyHeaders:
@@ -57,7 +61,7 @@ http:
         customResponseHeaders:
           X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex,"
           server: ""
-          Permissions-Policy: "geolocation=(self 'https://*.{{env "MAIN_DOMAIN"}}'), microphone=()"
+          Permissions-Policy: "accelerometer=(),autoplay=(),camera=(),encrypted-media=(),fullscreen=*,geolocation=*,gyroscope=(),magnetometer=(),microphone=(),midi=(),payment=(\"https://*.paypal.com\" ),sync-xhr=*,usb=(),xr-spatial-tracking=()"
           #Permissions-Policy: "geolocation=(self), microphone=(), camera=(), fullscreen=*""
           #Content-Security-Policy: "default-src 'self'"
     rate-limit:

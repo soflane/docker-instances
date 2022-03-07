@@ -4,8 +4,8 @@ services:
 #        Traefik Reverse Proxy       #
 ######################################   
   traefik:
-    # PLEASE keep tags, because WatchTower will auto update this image
-    image: traefik:v2.6
+    # PLEASE keep tags, and not 'latest', because WatchTower will auto update this image
+    image: traefik:${TRAEFIK_VERSION}
     env_file: .env
     container_name: traefik
     hostname: ${TRAEFIK_DASHBOARD_HOSTNAME}
