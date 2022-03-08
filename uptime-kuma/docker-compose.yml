@@ -1,0 +1,28 @@
+version: "3.5"
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    env_file: .env
+    container_name: uptime-kuma
+    hostname: uptime-kuma
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.uptime-kuma.rule=Host(`${UPTIMEKUMA_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.uptime-kuma.tls.certresolver=lets-encrypt
+      - traefik.http.routers.uptime-kuma.entrypoints=web-secure
+      #- traefik.http.routers.uptime-kuma.middlewares=basic-auth@file
+      #Enable Auto-Updates (Watchtower)
+      #- com.centurylinklabs.watchtower.enable=true
+    volumes:  
+      - ${UPTIMEKUMA_CONFIG}:/app/data
+    networks:
+      - traefik
+    expose:
+      - 3001
+    restart: unless-stopped
+
+networks:
+  traefik:
+    name: traefik  
+    external: true
