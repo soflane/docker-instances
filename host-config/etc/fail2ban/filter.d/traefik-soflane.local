@@ -1,7 +1,0 @@
-[INCLUDE]
-before = common.conf
-
-
-[Definition]
-failregex = ^<HOST> \- \S+ \[\] \"(GET|POST|HEAD) .+\" 401 .+$
-ignoreregex =
