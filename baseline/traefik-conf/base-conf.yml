@@ -33,6 +33,7 @@ http:
           - GET
           - OPTIONS
           - PUT
+          - PATCH
         accessControlAllowHeaders:
           - "*"
         accessControlAllowOriginList:
@@ -41,7 +42,7 @@ http:
         accessControlMaxAge: 100
         hostsProxyHeaders:
           - "X-Forwarded-Host"
-        sslRedirect: true
+        #sslRedirect: true
         stsSeconds: 315360000
         stsIncludeSubdomains: true
         stsPreload: true
@@ -51,8 +52,6 @@ http:
         contentTypeNosniff: true
         browserXssFilter: true
         # sslForceHost: true # add sslHost to all of the services
-        # sslHost: "example.com"
-        sslHost: "{{env "MAIN_DOMAIN"}}"
         referrerPolicy: "same-origin"
         # Setting contentSecurityPolicy is more secure but it can break things. Proper auth will reduce the risk.
         # the below line also breaks some apps due to 'none' - sonarr, radarr, etc.
