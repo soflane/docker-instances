@@ -11,6 +11,8 @@ services:
       - traefik.http.routers.xxx.rule=Host(`${XXX_HOSTNAME}.${MAIN_DOMAIN}`)
       - traefik.http.routers.xxx.tls.certresolver=lets-encrypt
       - traefik.http.routers.xxx.entrypoints=web-secure
+      - traefik.http.routers.xxx.middlewares=security-protocol@file
+      #- traefik.http.services.xxx.loadbalancer.server.port=
       #- traefik.http.routers.xxx.middlewares=basic-auth@file
       #Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
