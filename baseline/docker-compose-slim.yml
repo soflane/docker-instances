@@ -9,6 +9,34 @@ services:
     env_file: .env
     container_name: traefik
     hostname: ${TRAEFIK_DASHBOARD_HOSTNAME}
+    environment:
+      - TRAEFIK_PROVIDERS_DOCKER=true
+      - TRAEFIK_PROVIDERS_DOCKER_ENDPOINT=unix:///var/run/docker.sock
+      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
+      - TRAEFIK_PROVIDERS_FILE_DIRECTORY=/custom-conf/
+      - TRAEFIK_PROVIDERS_FILE_WATCH=true
+      - TRAEFIK_GLOBAL_CHECKNEWVERSION=true
+      - TRAEFIK_GLOBAL_SENDANONYMOUSUSAGE=true
+      - TRAEFIK_ENTRYPOINTS_web=true
+      - TRAEFIK_ENTRYPOINTS_web_ADDRESS=:80
+      - TRAEFIK_ENTRYPOINTS_web_HTTP_REDIRECTIONS_ENTRYPOINT_TO=web-secure
+      - TRAEFIK_ENTRYPOINTS_web_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME=https
+      - TRAEFIK_ENTRYPOINTS_web_HTTP_REDIRECTIONS_ENTRYPOINT_PERMANENT=true
+      - TRAEFIK_ENTRYPOINTS_web-secure=true
+      - TRAEFIK_ENTRYPOINTS_web-secure_ADDRESS=:443
+      - TRAEFIK_ENTRYPOINTS_web-secure_HTTP_MIDDLEWARES=security-protocol@file 
+      - TRAEFIK_LOG=true
+      - TRAEFIK_LOG_LEVEL=INFO
+      #- TRAEFIK_LOG_FILEPATH=/var/log/traefik.log
+      - TRAEFIK_ACCESSLOG=true
+      - TRAEFIK_ACCESSLOG_FILEPATH=/var/log/access.log
+      #- TRAEFIK_ACCESSLOG_FILTERS_STATUSCODES=400-499
+      #- TRAEFIK_API=true
+      - TRAEFIK_API_DASHBOARD=true
+      - TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt=true
+      - TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt_ACME_STORAGE=/letsencrypt/acme.json
+      # For devlopment purposes
+      #- TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt_ACME_CASERVER=https://acme-staging-v02.api.letsencrypt.org/directory=value
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik-conf/:/custom-conf/
@@ -36,23 +64,6 @@ services:
     ports:
       - 80:80
       - 443:443
-    restart: unless-stopped
-######################################
-#               DNS                  #
-######################################
-  ddclient:
-    image: linuxserver/ddclient
-    container_name: ddclient
-    labels:
-      - traefik.enable=false
-      #Enable Auto-Updates (Watchtower)
-      - com.centurylinklabs.watchtower.enable=true
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${DDCLIENT_CONFIG}:/config
     restart: unless-stopped
 ######################################
 #              Watchtower            #
