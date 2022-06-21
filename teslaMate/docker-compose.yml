@@ -1,0 +1,149 @@
+version: "3.5"
+services:
+######################################
+#        Traefik Reverse Proxy       #
+######################################   
+  teslamate:
+    image: teslamate/teslamate:latest
+    restart: always
+    depends_on:
+      - database
+    environment:
+      - ENCRYPTION_KEY=${TM_ENCRYPTION_KEY}
+      - DATABASE_USER=${TM_DB_USER}
+      - DATABASE_PASS=${TM_DB_PASS}
+      - DATABASE_NAME=${TM_DB_NAME}
+      - DATABASE_HOST=database
+      - MQTT_HOST=mosquitto
+      - VIRTUAL_HOST=${MAIN_DOMAIN}
+      - CHECK_ORIGIN=true
+      - TZ=${TZ}
+    volumes:
+      - ./import:/opt/app/import
+    networks:
+      - mytesla-core
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=4000"
+      - "traefik.docker.network=traefik"
+      #- "traefik.http.routers.teslamate-insecure.rule=Host(`${MAIN_DOMAIN}`)"
+      #- "traefik.http.routers.teslamate-insecure.middlewares=security-protocol@file"
+      - "traefik.http.routers.teslamate-ws.rule=Host(`${MAIN_DOMAIN}`) && Path(`/live/websocket`)"
+      - "traefik.http.routers.teslamate-ws.entrypoints=web-secure"
+      #- "traefik.http.routers.teslamate-ws.tls"
+      - "traefik.http.routers.teslamate.rule=Host(`${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.teslamate.middlewares=security-protocol-pw@file"
+      - "traefik.http.routers.teslamate.entrypoints=web-secure"
+      - "traefik.http.routers.teslamate.tls.certresolver=lets-encrypt"
+    cap_drop:
+      - all
+
+  database:
+    image: postgres:$POSTGRES_MAJOR_VERSION
+    restart: always
+    networks:
+      - mytesla-core
+    environment:
+      - POSTGRES_USER=${TM_DB_USER}
+      - POSTGRES_PASSWORD=${TM_DB_PASS}
+      - POSTGRES_DB=${TM_DB_NAME}
+    volumes:
+      - teslamate-db:/var/lib/postgresql/data
+
+  grafana:
+    image: teslamate/grafana:latest
+    restart: always
+    networks:
+      - mytesla-core
+      - traefik
+    environment:
+      - DATABASE_USER=${TM_DB_USER}
+      - DATABASE_PASS=${TM_DB_PASS}
+      - DATABASE_NAME=${TM_DB_NAME}
+      - DATABASE_HOST=database
+      - GRAFANA_PASSWD=${GRAFANA_PW}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PW}
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_SERVER_DOMAIN=${MAIN_DOMAIN}
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+
+    volumes:
+      - teslamate-grafana-data:/var/lib/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.port=3000"
+      - "traefik.http.routers.grafana.middlewares=security-protocol@file"
+      - "traefik.http.routers.grafana.rule=Host(`${MAIN_DOMAIN}`) && (Path(`/grafana`) || PathPrefix(`/grafana/`))"
+      - "traefik.http.routers.grafana.entrypoints=web-secure"
+      - "traefik.http.routers.grafana.tls.certresolver=lets-encrypt"
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: always
+    command: mosquitto -c /mosquitto-no-auth.conf
+    ports:
+      - 127.0.0.1:1883:1883
+    volumes:
+      - mosquitto-conf:/mosquitto/config
+      - mosquitto-data:/mosquitto/data
+  
+  pg-cron-backup:
+    image: kartoza/pg-backup:$POSTGRES_MAJOR_VERSION-$POSTGIS_MAJOR_VERSION.${POSTGIS_MINOR_RELEASE}
+    container_name: pg-cron-backup
+    env_file: .env
+    depends_on:
+      - database
+    networks:
+      - mytesla-core
+    volumes:
+      - ${DB_BACKUP_PATH}:/backups
+    environment:
+      - POSTGRES_HOST=database
+      - POSTGRES_PASS=${TM_DB_PASS}
+      - POSTGRES_USER=${TM_DB_USER}
+      #- MYSQL_DATABASE=${TM_DB_NAME}
+      - CRON_SCHEDULE=${BACKUP_CRON_TIME}
+      #- GZIP_LEVEL=${BACKUP_GZIP_LEVEL}
+    restart: unless-stopped
+ # adminer:
+ #   image: adminer
+ #   env_file: .env
+ #   container_name: adminer
+ #   hostname: adminer #${NEXTCLOUD_HOSTNAME}
+ #   labels:
+ #     - traefik.enable=true
+ #     - traefik.docker.network=traefik
+ #     - traefik.http.routers.adminer.rule=Host(`DB.${MAIN_DOMAIN}`)
+ #     - traefik.http.routers.adminer.tls.certresolver=lets-encrypt
+ #     - traefik.http.routers.adminer.entrypoints=web-secure
+ #     #- traefik.http.routers.adminer.middlewares=basic-auth@file
+ #     #Enable Auto-Updates (Watchtower)
+ #     #- com.centurylinklabs.watchtower.enable=true
+ #     #Enable flame dashboard link
+ #     - flame.type=application # "app" works too
+ #     - flame.name=adminer
+ #     - flame.url=https://db.${MAIN_DOMAIN}
+ #     #- flame.icon=icon-name # Optional, default is "docker"
+ #   networks:
+ #     - traefik
+ #     - mytesla-core
+ #   expose:
+ #     - 8080
+ #   restart: unless-stopped
+
+
+networks:
+  traefik:
+    name: traefik  
+    external: true
+  mytesla-core:
+    name: mytesla-core
+volumes:
+  teslamate-db:
+  teslamate-grafana-data:
+  mosquitto-conf:
+  mosquitto-data:
