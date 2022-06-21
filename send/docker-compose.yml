@@ -1,13 +1,14 @@
 version: '3.5'
 services: 
   send:
-    image: registry.gitlab.com/timvisee/send:latest
+    image: '${DOCKER_SEND_IMAGE}'
     env_file: .env
     container_name: send
-    hostname: ${SEND_HOSTNAME}
+    hostname: send
     labels:
       - traefik.enable=true
-      - traefik.http.routers.send.rule=Host(`${SEND_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.docker.network=traefik
+      - traefik.http.routers.send.rule=Host(`${MAIN_DOMAIN}`)
       - traefik.http.routers.send.tls.certresolver=lets-encrypt
       - traefik.http.routers.send.entrypoints=web-secure
       #- traefik.http.routers.sendpsi-transferddlewares=basic-auth@file
@@ -16,18 +17,44 @@ services:
       #Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Send
-      - flame.url=https://${SEND_HOSTNAME}.${MAIN_DOMAIN}
+      - flame.url=https://${MAIN_DOMAIN}
       #- flame.icon=icon-name # Optional, default is "docker"
     volumes:  
-      - ./uploads-send:/uploads
+      - /mnt/disk1/uploads:/uploads
+      # Make sure that the owner of the uploads directory on the host is the user with UID 1000. Inside the container, 
+      # the Send is launched on behalf of the user "app" with this UID. The user in the container must have write access to the /uploads.
+      - ./custom_assets:/app/dist/custom_assets
+    environment:
+      - DHPARAM_GENERATION=false
+      - NODE_ENV=production
+      - VIRTUAL_HOST=${MAIN_DOMAIN}
+      - BASE_URL=https://${MAIN_DOMAIN}
+      - REDIS_HOST=redis
+      - FILE_DIR=/uploads
     networks:
       - traefik
+      - send-core
     expose:
       - 1443
     restart: unless-stopped
+  redis:
+    image: redis:alpine
+    container_name: redis
+    hostname: redis 
+    restart: always
+    networks:
+      - send-core
+    volumes:
+      - send-redis:/data
   
+
+
 networks:
   traefik:
     external: true
-    name: traefik  
+    name: traefik 
+  send-core:
+    name: send-core  
     
+volumes:
+  send-redis:
