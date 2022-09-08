@@ -12,7 +12,7 @@ services:
       - traefik.http.routers.uptime-kuma.tls.certresolver=lets-encrypt
       - traefik.http.routers.uptime-kuma.entrypoints=web-secure
       #- traefik.http.routers.uptime-kuma.middlewares=basic-auth@file
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
     volumes:  
       - ${UPTIMEKUMA_CONFIG}:/app/data

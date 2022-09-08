@@ -79,7 +79,7 @@ services:
       - prometheus
     restart: unless-stopped
   grafana: 
-    image: grafana/grafana #add version
+    image: grafana/grafana # add version
     container_name: grafana
     env_file: .env
     hostname: grafana
@@ -119,7 +119,7 @@ services:
       - prometheus
     restart: unless-stopped
   
-  #https://github.com/prometheus-msteams/prometheus-msteams
+  # https://github.com/prometheus-msteams/prometheus-msteams
   prometheus-msteams:
     hostname: prometheus-msteams
     image: quay.io/prometheusmsteams/prometheus-msteams

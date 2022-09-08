@@ -50,12 +50,12 @@ services:
       - traefik.http.routers.proxy-api.tls.certresolver=lets-encrypt
       - traefik.http.routers.proxy-api.service=api@internal
       - traefik.http.routers.proxy-api.tls
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Traefik
       - flame.url=https://${TRAEFIK_DASHBOARD_HOSTNAME}.${MAIN_DOMAIN}
       #- flame.icon=icon-name # Optional, default is "docker"
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
     networks:
       - traefik
@@ -74,7 +74,7 @@ services:
     image: containrrr/watchtower
     env_file: .env
     container_name: watchtower
-    hostname: watchtower    #helps watchtower write container names instead of IDs in notifications
+    hostname: watchtower    # helps watchtower write container names instead of IDs in notifications
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped

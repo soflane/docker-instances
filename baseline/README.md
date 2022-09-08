@@ -24,11 +24,11 @@ However, ddclient and eventually the traefik dynamic configuration for external 
 
 #### Side note about Flame
 
-Flame is a dashboard/start page for your server. The choice of using this one especially was made because of the easy setup brought by @pawelmalak. To add a link to your start page you can add it directly from the UI (for external links) or you can simply add the following labels to your web service *: 
+Flame is a dashboard/start page for your server. The choice of using this one especially was made because of the easy setup brought by @pawelmalak. To add a link to your start page you can add it directly from the UI (for external links) or you can simply add the following labels to your web service *:
 
 ```yaml
 labels:
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=app-name
       - flame.url=https://yourlink.com
@@ -39,7 +39,7 @@ The icon names can be found at [Material Design Icons](https://materialdesignico
 
 *: I will update the labels in other compose files later
 
-### Environment variables 
+### Environment variables
 
 | Variable                                              | Default value          | Usage                                                        |
 | ----------------------------------------------------- | ---------------------- | ------------------------------------------------------------ |

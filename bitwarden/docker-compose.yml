@@ -21,9 +21,9 @@ services:
     networks:
         - traefik
     restart: unless-stopped
-#Fail2ban
-#see https://github.com/dani-garcia/bitwarden_rs/wiki/Fail2Ban-Setup 
-#for more infos
+# Fail2ban
+# see https://github.com/dani-garcia/bitwarden_rs/wiki/Fail2Ban-Setup
+# for more infos
   fail2ban:
     container_name: fail2ban
     restart: always
