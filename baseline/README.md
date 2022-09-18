@@ -48,19 +48,19 @@ The icon names can be found at [Material Design Icons](https://materialdesignico
 | PORTAINER_HOSTNAME                                    | docker                 | Hostname of the container, from outside it will be docker.example.com |
 | NETDATA_HOSTNAME                                      | host                   | Same as above                                                |
 | TRAEFIK_DASHBOARD_HOSTNAME                            | proxy                  | Same as above                                                |
-| TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt_ACME_EMAIL | postmaster@example.com | Email address used for registration.                         |
+| TRAEFIK_ACME_EMAIL  | postmaster@example.com      | Email address used for registration.                         |
 | WATCHTOWER_POLL_INTERVAL                              | 3600                   | Time in seconds for                                          |
 | WATCHTOWER_CLEANUP                                    | true                   | Removes old images after updating.                           |
 | WATCHTOWER_LABEL_ENABLE                               | true                   | Update only containers that have a `com.centurylinklabs.watchtower.enable` label set to true. |
 
-More informations about environment variables : 
+More informations about environment variables :
 
 - [Traefik](https://doc.traefik.io/traefik/reference/static-configuration/env/)
   - [Watchtower](https://containrrr.dev/watchtower/arguments/)
 
 ## Instructions
 
-#### 1. Clone the repository 
+#### 1. Clone the repository
 
 ```bash
 $ git clone https://github.com/soflane/docker-instances
@@ -82,7 +82,7 @@ $ cp traefik-conf/add-conf.yml.dist traefik-conf/add-conf.yml
 $ nano traefik-conf/add-conf.yml 
 ```
 
-#### 4. Edit .env file 
+#### 4. Edit .env file
 
 ```bash
 $ cp .env.dist .env
@@ -91,9 +91,8 @@ $ nano .env
 
 PS: I use nano (you can judge me for that, idc :p), you can use whatever text editor you want 
 
-#### 5. Start the docker-compose stack 
+#### 5. Start the docker-compose stack
 
 ```bash
 $ docker-compose up -d
 ```
-

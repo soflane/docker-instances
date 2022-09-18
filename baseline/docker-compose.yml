@@ -3,41 +3,42 @@ services:
 ######################################
 #        Traefik Reverse Proxy       #
 ######################################   
-
   traefik:
     # PLEASE keep tags, and not 'latest', because WatchTower will auto update this image
     image: traefik:${TRAEFIK_VERSION}
     env_file: .env
     container_name: traefik
     hostname: ${TRAEFIK_DASHBOARD_HOSTNAME}
-    environment:
-      - TRAEFIK_PROVIDERS_DOCKER=true
-      - TRAEFIK_PROVIDERS_DOCKER_ENDPOINT=unix:///var/run/docker.sock
-      - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
-      - TRAEFIK_PROVIDERS_FILE_DIRECTORY=/custom-conf/
-      - TRAEFIK_PROVIDERS_FILE_WATCH=true
-      - TRAEFIK_GLOBAL_CHECKNEWVERSION=true
-      - TRAEFIK_GLOBAL_SENDANONYMOUSUSAGE=true
-      - TRAEFIK_ENTRYPOINTS_web=true
-      - TRAEFIK_ENTRYPOINTS_web_ADDRESS=:80
-      - TRAEFIK_ENTRYPOINTS_web_HTTP_REDIRECTIONS_ENTRYPOINT_TO=web-secure
-      - TRAEFIK_ENTRYPOINTS_web_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME=https
-      - TRAEFIK_ENTRYPOINTS_web_HTTP_REDIRECTIONS_ENTRYPOINT_PERMANENT=true
-      - TRAEFIK_ENTRYPOINTS_web-secure=true
-      - TRAEFIK_ENTRYPOINTS_web-secure_ADDRESS=:443
-      - TRAEFIK_ENTRYPOINTS_web-secure_HTTP_MIDDLEWARES=security-protocol@file 
-      - TRAEFIK_LOG=true
-      - TRAEFIK_LOG_LEVEL=INFO
-      #- TRAEFIK_LOG_FILEPATH=/var/log/traefik.log
-      - TRAEFIK_ACCESSLOG=true
-      - TRAEFIK_ACCESSLOG_FILEPATH=/var/log/access.log
-      #- TRAEFIK_ACCESSLOG_FILTERS_STATUSCODES=400-499
-      #- TRAEFIK_API=true
-      - TRAEFIK_API_DASHBOARD=true
-      - TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt=true
-      - TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt_ACME_STORAGE=/letsencrypt/acme.json
+    command:
+      - "--log.level=INFO"
+      #- "--log.filepath=/var/log/traefik.log"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.directory=/custom-conf/"
+      - "--providers.file.watch=true"
+      - "--global.checknewversion=true"
+      - "--global.sendanonymoususage=false"
+      - "--certificatesresolvers.lets-encrypt=true"
+      - "--certificatesresolvers.lets-encrypt.acme.email=${TRAEFIK_ACME_EMAIL}"
+      - "--certificatesresolvers.lets-encrypt.acme.caserver=${TRAEFIK_ACME_CASERVER:-https://acme-v02.api.letsencrypt.org/directory}"
       # For development purposes
-      #- TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt_ACME_CASERVER=https://acme-staging-v02.api.letsencrypt.org/directory=value
+      #- "--certificatesresolvers.lets-encrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.lets-encrypt.acme.tlschallenge=${TRAEFIK_ACME_TLSCHALLENGE:-false}"
+      - "--certificatesresolvers.lets-encrypt.acme.dnschallenge=${TRAEFIK_ACME_DNSCHALLENGE:-false}"
+      - "--certificatesresolvers.lets-encrypt.acme.dnschallenge.provider=${TRAEFIK_ACME_DNSCHALLENGE_PROVIDER:-''}"
+      - "--certificatesresolvers.lets-encrypt.acme.dnschallenge.delaybeforecheck=${TRAEFIK_ACME_DNSCHALLENGE_DELAYBEFORECHECK:-10}"
+      - "--certificatesresolvers.lets-encrypt.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=web-secure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+      - "--entrypoints.web-secure.address=:443"
+      - "--entrypoints.web-secure.http.middlewares=security-protocol@file"
+      - "--accesslog=true"
+      - "--accesslog.filepath=/var/log/access.log"
+      #- "--accesslog.filters.statuscodes=400-499"
+      #- "--api=true"
+      - "--api.dashboard=true"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik-conf/:/custom-conf/
