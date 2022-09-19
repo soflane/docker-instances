@@ -11,9 +11,9 @@ services:
       - traefik.http.routers.wikijs.tls.certresolver=lets-encrypt
       - traefik.http.routers.wikijs.entrypoints=web-secure
       #- traefik.http.routers.wikijs.middlewares=basic-auth@file
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Wiki
       - flame.url=https://${WIKIJS_HOSTNAME}.${MAIN_DOMAIN}
@@ -41,9 +41,9 @@ services:
 #      - traefik.http.routers.adminer-wiki.tls.certresolver=lets-encrypt
 #      - traefik.http.routers.adminer-wiki.entrypoints=web-secure
 #      #- traefik.http.routers.adminer-wiki.middlewares=basic-auth@file
-#      #Enable Auto-Updates (Watchtower)
+#      # Enable Auto-Updates (Watchtower)
 #      #- com.centurylinklabs.watchtower.enable=true
-#      #Enable flame dashboard link
+#      # Enable flame dashboard link
 #      - flame.type=application # "app" works too
 #      - flame.name=adminer-wiki
 #      - flame.url=https://${ADMINER_WIKI_HOSTNAME}.${MAIN_DOMAIN}

@@ -16,9 +16,9 @@ services:
       - traefik.http.routers.adguardhome.entrypoints=web-secure
       - traefik.http.services.adguardhome.loadbalancer.server.port=80
       #- traefik.http.routers.adguardhome.middlewares=basic-auth@file
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=
       - flame.url=https://${ADGUARD_HOSTNAME}.${MAIN_DOMAIN}

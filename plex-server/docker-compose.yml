@@ -10,7 +10,7 @@ services:
     hostname: plex
     network_mode: host
     labels: 
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
     volumes:
       - ${PLEX_CONFIG}:/config
@@ -29,9 +29,9 @@ services:
       - traefik.http.routers.tautulli.rule=Host(`${TAUTULLI_HOSTNAME}.${MAIN_DOMAIN}`)
       - traefik.http.routers.tautulli.tls.certresolver=lets-encrypt
       - traefik.http.routers.tautulli.entrypoints=web-secure
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Tautulli
       - flame.url=https://${TAUTULLI_HOSTNAME}.${MAIN_DOMAIN}
@@ -56,9 +56,9 @@ services:
       - traefik.http.routers.calibre.tls.certresolver=lets-encrypt
       - traefik.http.routers.calibre.entrypoints=web-secure
       - traefik.http.services.calibre.loadbalancer.server.port=8083
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Calibre E-books
       - flame.url=https://${CALIBRE_HOSTNAME}.${MAIN_DOMAIN}
@@ -89,9 +89,9 @@ services:
       - traefik.http.routers.transmission.entrypoints=web-secure
       - traefik.http.services.transmission.loadbalancer.server.port=9091
       - traefik.http.routers.transmission.middlewares=security-protocol-pw@file
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Transmission
       - flame.url=https://${TRANSMISSION_HOSTNAME}.${MAIN_DOMAIN}
@@ -124,7 +124,7 @@ services:
       - traefik.http.routers.sickchill.entrypoints=web-secure
       #- traefik.http.services.sickchill.loadbalancer.server.port=8081
       - com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Sickchill
       - flame.url=https://${SICKCHILL_HOSTNAME}.${MAIN_DOMAIN}
@@ -153,9 +153,9 @@ services:
       - traefik.http.routers.couchpotato.rule=Host(`${CP_HOSTNAME}.${MAIN_DOMAIN}`)
       - traefik.http.routers.couchpotato.tls.certresolver=lets-encrypt
       - traefik.http.routers.couchpotato.entrypoints=web-secure
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Couchpotato
       - flame.url=https://${CP_HOSTNAME}.${MAIN_DOMAIN}
@@ -186,9 +186,9 @@ services:
       - traefik.http.routers.jackett.entrypoints=web-secure
       #- traefik.http.routers.jackett.middlewares=basic-auth@file
       #- traefik.http.services.jackett.loadbalancer.server.port=9117
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Jackett
       - flame.url=https://${JACKETT_HOSTNAME}.${MAIN_DOMAIN}
@@ -219,9 +219,9 @@ services:
       - traefik.http.middlewares.joal-bypass.redirectregex.replacement=https://${JOAL_HOSTNAME}.${MAIN_DOMAIN}/joal/ui?ui_credentials=%7B%0A%20%20%22host%22%3A%20%22${JOAL_HOSTNAME}.${MAIN_DOMAIN}%22%2C%0A%20%20%22port%22%3A%20443%2C%0A%20%20%22pathPrefix%22%3A%20%22joal%22%2C%0A%20%20%22secretToken%22%3A%20%22Trololo%22%0A%7D
       - traefik.http.routers.joal.middlewares=joal-bypass
       #- traefik.http.routers.joal.middlewares=joal-chain@file
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Ratio (Joal)
       - flame.url=https://${JOAL_REDIR_HOSTNAME}.${MAIN_DOMAIN}

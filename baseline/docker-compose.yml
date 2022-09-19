@@ -36,7 +36,7 @@ services:
       - TRAEFIK_API_DASHBOARD=true
       - TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt=true
       - TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt_ACME_STORAGE=/letsencrypt/acme.json
-      # For devlopment purposes
+      # For development purposes
       #- TRAEFIK_CERTIFICATESRESOLVERS_lets-encrypt_ACME_CASERVER=https://acme-staging-v02.api.letsencrypt.org/directory=value
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -51,12 +51,12 @@ services:
       - traefik.http.routers.proxy-api.tls.certresolver=lets-encrypt
       - traefik.http.routers.proxy-api.service=api@internal
       - traefik.http.routers.proxy-api.tls
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Traefik
       - flame.url=https://${TRAEFIK_DASHBOARD_HOSTNAME}.${MAIN_DOMAIN}
       #- flame.icon=icon-name # Optional, default is "docker"
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
     networks:
       - traefik
@@ -80,7 +80,7 @@ services:
         - traefik.http.routers.flame.rule=Host(`${FLAME_HOSTNAME}.${MAIN_DOMAIN}`)
         - traefik.http.routers.flame.tls.certresolver=lets-encrypt
         - traefik.http.routers.flame.middlewares=basic-auth@file
-        #Enable Auto-Updates (Watchtower)
+        # Enable Auto-Updates (Watchtower)
         - com.centurylinklabs.watchtower.enable=true
       volumes:
         - ${FLAME_CONFIG}:/app/data
@@ -105,9 +105,9 @@ services:
       - traefik.http.routers.portainer.middlewares=security-protocol@file
       - traefik.http.routers.portainer.tls.certresolver=lets-encrypt
       - traefik.http.services.portainer.loadbalancer.server.port=9000
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Portainer
       - flame.url=https://${PORTAINER_HOSTNAME}.${MAIN_DOMAIN}
@@ -138,9 +138,9 @@ services:
       - traefik.http.routers.netdata.tls.certresolver=lets-encrypt
       - traefik.http.routers.netdata.entrypoints=web-secure
       - traefik.http.routers.netdata.middlewares=security-protocol-pw@file
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Netdata
       - flame.url=https://${NETDATA_HOSTNAME}.${MAIN_DOMAIN}
@@ -173,7 +173,7 @@ services:
     container_name: ddclient
     labels:
       - traefik.enable=false
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
     environment:
       - PUID=${PUID}
@@ -191,7 +191,7 @@ services:
     image: containrrr/watchtower
     env_file: .env
     container_name: watchtower
-    hostname: watchtower    #helps watchtower write container names instead of IDs in notifications
+    hostname: watchtower    # helps watchtower write container names instead of IDs in notifications
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped

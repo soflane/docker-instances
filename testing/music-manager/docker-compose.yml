@@ -10,7 +10,7 @@ services:
       - traefik.http.routers.deemix.rule=Host(`${DEEMIX_HOSTNAME}.${MAIN_DOMAIN}`)
       - traefik.http.routers.deemix.tls.certresolver=lets-encrypt
       - traefik.http.routers.deemix.entrypoints=web-secure
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
     volumes:
       - ${DEEMIX_DOWNLOADS}:/downloads
@@ -32,7 +32,7 @@ services:
 #      - traefik.http.routers.xxx.tls.certresolver=lets-encrypt
 #      - traefik.http.routers.xxx.entrypoints=web-secure
 #      - traefik.http.routers.xxx.middlewares=basic-auth@file
-#      #Enable Auto-Updates (Watchtower)
+#      # Enable Auto-Updates (Watchtower)
 #      - com.centurylinklabs.watchtower.enable=true
 #    volumes:
 #      - ${DEEMON_CONFIG}:/config 
@@ -58,9 +58,9 @@ services:
       - traefik.http.routers.ultrasonics.tls.certresolver=lets-encrypt
       - traefik.http.routers.ultrasonics.entrypoints=web-secure
       - traefik.http.routers.ultrasonics.middlewares=basic-auth@file
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Ultrasonics
       - flame.url=https://${ULTRASONIC_HOSTNAME}.${MAIN_DOMAIN}
