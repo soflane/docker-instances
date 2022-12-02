@@ -1,0 +1,23 @@
+version: '3.5'
+services: 
+  wireguard:
+    image: lscr.io/linuxserver/wireguard
+    env_file: .env
+    container_name: wireguard
+    hostname: ${WIREGUARD_HOSTNAME}
+    environment:
+      - SERVERURL=${WIREGUARD_HOSTNAME}.${MAIN_DOMAIN} #optional
+      - SERVERPORT=51820 #optional
+      - PEERDNS=auto #optional
+    volumes:  
+      - ${WIREGUARD_CONFIG}:/config
+      - /lib/modules:/lib/modules
+    ports:
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    restart: unless-stopped
+    
