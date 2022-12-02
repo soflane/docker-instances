@@ -1,0 +1,84 @@
+#https://medium.com/@d3rwan/une-stack-elk-from-scratch-avec-docker-2668bc46f709
+
+version: "3.3"
+services:
+  # brocker
+  redis:
+    image: redis:6.0.1
+    container_name: redis
+    hostname: redis
+    ports:
+      - 6379:6379
+    volumes:
+      #- redis-data:/data
+      - ./redis/data:/data
+      - ./redis/config/redis.conf:/usr/local/etc/redis/redis.conf 
+    networks:
+      - logging
+  # index, search & agregation
+  elasticsearch:
+    user: 1000:1000
+    image: elasticsearch:7.7.1
+    container_name: elasticsearch
+    hostname: elasticsearch
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      #- "es-data:/usr/share/elasticsearch/data"
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+    networks:
+      - logging
+  # UI
+  kibana:
+    image: kibana:7.7.1
+    container_name: kibana
+    hostname: kibana
+    ports:
+      - 5601:5601
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.kibana.rule=Host(`${KIBANA_DASHBOARD_HOST}`)
+      - traefik.http.routers.kibana.middlewares=basic-auth@file
+      - traefik.http.routers.kibana.entrypoints=web-secure
+      - traefik.http.routers.kibana.tls.certresolver=lets-encrypt
+      - traefik.http.services.kibana.loadbalancer.server.port=5601
+    volumes:
+      - ./kibana/config/kibana.yml:/etc/kibana/kibana.yml
+    networks:
+      - logging
+    depends_on:
+      - elasticsearch
+  # indexer
+  logstash:
+    user: 1000:1000
+    image: logstash:7.7.1
+    container_name: logstash
+    command: logstash -f /usr/share/logstash/pipeline/*.conf
+    volumes:
+      - ./logstash/config/:/usr/share/logstash/config/
+      - ./logstash/pipeline/:/usr/share/logstash/pipeline/
+    networks:
+      - logging
+    ports: 
+      - 5044:5044
+    depends_on:
+      - elasticsearch
+      #- redis
+  
+
+volumes:
+  data:
+#  es-data:
+#    driver: local
+#  redis-data:
+#    driver: local
+
+networks:
+  logging:
+    external: 
+      name: logging
+  proxy:
+    external: 
+      name: Traefik
