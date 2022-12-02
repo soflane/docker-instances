@@ -1,0 +1,84 @@
+version: '3.5'
+services: 
+  monica_crm_sof:
+    image: monica
+    env_file: .env
+    container_name: monica
+    hostname: ${MONICA_HOSTNAME}
+    depends_on:
+      - db_monica
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USERNAME=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - APP_URL=https://${MONICA_HOSTNAME}.${MAIN_DOMAIN}
+      - APP_ENV=production
+      - APP_TRUSTED_PROXIES=*
+      - APP_FORCE_URL=true
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.monica_crm.rule=Host(`${MONICA_HOSTNAME}.${MAIN_DOMAIN}`)
+      - traefik.http.routers.monica_crm.tls.certresolver=lets-encrypt
+      - traefik.http.routers.monica_crm.entrypoints=web-secure
+      #- traefik.http.routers.monica_crm.middlewares=basic-auth@file
+      #Enable Auto-Updates (Watchtower)
+      #- com.centurylinklabs.watchtower.enable=true
+      #Enable flame dashboard link
+      - flame.type=application # "app" works too
+      - flame.name=
+      - flame.url=https://${MONICA_HOSTNAME}.${MAIN_DOMAIN}
+      #- flame.icon=icon-name # Optional, default is "docker"
+    volumes:  
+      - ${MONICA_CONFIG}:/var/www/html/storage
+    networks:
+      - traefik
+      - monica-core
+    expose:
+      - 8080
+      - 80
+    restart: unless-stopped
+  db_monica:
+    container_name: ${DB_HOST}
+    hostname: ${DB_HOST}
+    image: mysql:5.7
+    networks:
+      - monica-core
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mysql:/var/lib/mysql
+    restart: always
+  mysql-cron-backup-monica:
+    image: fradelg/mysql-cron-backup
+    container_name: mysql-cron-backup-monica
+    env_file: .env
+    depends_on:
+      - db_monica
+    networks:
+      - monica-core
+    volumes:
+      - ${DB_BACKUP_PATH}:/backup
+    environment:
+      - MYSQL_HOST=${DB_HOST}
+      - MYSQL_PASS=${DB_PASSWORD}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_DATABASE=${DB_NAME}
+      - CRON_TIME=${BACKUP_CRON_TIME}
+      - GZIP_LEVEL=${BACKUP_GZIP_LEVEL}
+    restart: unless-stopped
+  
+volumes:
+  mysql:
+    name: mysql
+
+networks: 
+  traefik:
+    external: true
+    name: proxy  
+  monica-core:
+    name: monica-core
+    
