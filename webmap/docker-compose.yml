@@ -15,7 +15,7 @@ services:
       - traefik.http.routers.webmap.entrypoints=web-secure
       - traefik.http.services.webmap.loadbalancer.server.port=8000
       - traefik.http.routers.webmap.middlewares=basic-auth@file
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
     environment:
       PUID: ${PUID}

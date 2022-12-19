@@ -14,9 +14,9 @@ services:
       - traefik.http.routers.bookstack.tls.certresolver=lets-encrypt
       - traefik.http.routers.bookstack.entrypoints=web-secure
       #- traefik.http.routers.bookstack.middlewares=basic-auth@file
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=docu
       - flame.url=https://${BOOKSTACK_HOSTNAME}.${MAIN_DOMAIN}
@@ -84,9 +84,9 @@ services:
  #     - traefik.http.routers.adminer.tls.certresolver=lets-encrypt
  #     - traefik.http.routers.adminer.entrypoints=web-secure
  #     #- traefik.http.routers.adminer.middlewares=basic-auth@file
- #     #Enable Auto-Updates (Watchtower)
+ #     # Enable Auto-Updates (Watchtower)
  #     #- com.centurylinklabs.watchtower.enable=true
- #     #Enable flame dashboard link
+ #     # Enable flame dashboard link
  #     - flame.type=application # "app" works too
  #     - flame.name=adminer
  #     - flame.url=https://db.${MAIN_DOMAIN}

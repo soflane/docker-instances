@@ -14,9 +14,9 @@ services:
       - traefik.http.routers.xxx.middlewares=security-protocol@file
       #- traefik.http.services.xxx.loadbalancer.server.port=
       #- traefik.http.routers.xxx.middlewares=basic-auth@file
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=
       - flame.url=https://${XXX_HOSTNAME}.${MAIN_DOMAIN}

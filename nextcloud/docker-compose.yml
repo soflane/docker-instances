@@ -28,9 +28,9 @@ services:
       - traefik.http.middlewares.cloud_redirectregex.redirectregex.regex=/.well-known/(card|cal)dav
       - traefik.http.middlewares.cloud_redirectregex.redirectregex.replacement=/remote.php/dav/
       - traefik.http.middlewares.cloud_headers.headers.customRequestHeaders.X-Forwarded-Proto=https
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=Nextcloud
       - flame.url=https://${NEXTCLOUD_HOSTNAME}.${MAIN_DOMAIN}
@@ -78,9 +78,9 @@ services:
       - traefik.http.routers.adminer.tls.certresolver=lets-encrypt
       - traefik.http.routers.adminer.entrypoints=web-secure
       #- traefik.http.routers.adminer.middlewares=basic-auth@file
-      #Enable Auto-Updates (Watchtower)
+      # Enable Auto-Updates (Watchtower)
       #- com.centurylinklabs.watchtower.enable=true
-      #Enable flame dashboard link
+      # Enable flame dashboard link
       - flame.type=application # "app" works too
       - flame.name=adminer
       - flame.url=https://${ADMINER_HOSTNAME}.${MAIN_DOMAIN}

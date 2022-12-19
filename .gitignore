@@ -1,3 +1,4 @@
 *.env
 \[Personal-configs\]
 \[host-config\]
+.DS_Store
