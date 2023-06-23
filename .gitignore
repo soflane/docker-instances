@@ -1,3 +1,5 @@
 *.env
 \[Personal-configs\]
 \[host-config\]
+.vscode/launch.json
+\[toClean\]
