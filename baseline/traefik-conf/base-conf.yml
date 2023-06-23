@@ -13,7 +13,7 @@ http:
       basicAuth:
         users:
           - '{{env "BASIC_AUTH_USER"}}'
-        usersFile: "/custom-conf/auth-users.txt"
+        #usersFile: "/custom-conf/auth-users.txt"
   #
   #     If you don't use joal, just delete the following middleware 
   #     
@@ -60,7 +60,7 @@ http:
         customResponseHeaders:
           X-Robots-Tag: "none,noarchive,nosnippet,notranslate,noimageindex,"
           server: ""
-          Permissions-Policy: "accelerometer=(),autoplay=(),camera=(),encrypted-media=(),fullscreen=*,geolocation=*,gyroscope=(),magnetometer=(),microphone=(),midi=(),payment=(\"https://*.paypal.com\" ),sync-xhr=*,usb=(),xr-spatial-tracking=()"
+          Permissions-Policy: "accelerometer=(),autoplay=(),camera=(),encrypted-media=(),fullscreen=*,geolocation=*,gyroscope=(),magnetometer=(),microphone=(),midi=(),sync-xhr=*,usb=(),xr-spatial-tracking=()"
           #Permissions-Policy: "geolocation=(self), microphone=(), camera=(), fullscreen=*""
           #Content-Security-Policy: "default-src 'self'"
     rate-limit:
