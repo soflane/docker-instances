@@ -6,9 +6,9 @@ services:
     container_name: mysql_snipe
     hostname: mysql_snipe
     networks:
-      - traefik
+      - snipe-it-core
     volumes:
-      - ${SNIPEIT_DATABASE_PATH}:/var/lib/mysql
+      - db:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password
     expose: 
       - 3306
@@ -18,20 +18,54 @@ services:
     image: snipe/snipe-it:latest
     container_name: snipe-it
     env_file: .env
+    environment:
+      - APP_URL=https://${SNIPEIT_HOST}
+      - APP_TIMEZONE=${TZ}
+      - APP_ENV=production
+      - APP_TRUSTED_PROXIES=172.17.0.0/16
+      - SECURE_COOKIES=true
     depends_on:
       - mysql_snipe
     labels: 
       - traefik.enable=true
+      - traefik.docker.network=traefik
       - traefik.http.routers.snipeit.rule=Host(`${SNIPEIT_HOST}`)
       - traefik.http.routers.snipeit.tls.certresolver=lets-encrypt
       - traefik.http.routers.snipeit.entrypoints=web-secure
       - traefik.http.routers.snipeit.middlewares=security-protocol@file
+      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.monitor-only=true      
     expose:
       - 80
     networks:
       - traefik
+      - snipe-it-core
+    restart: unless-stopped
+  mysql-cron-backup:
+    image: fradelg/mysql-cron-backup
+    container_name: mysql-cron-backup
+    env_file: .env
+    depends_on:
+      - mysql_snipe
+    networks:
+      - snipe-it-core
+    volumes:
+      - ${DB_BACKUP_PATH}:/backup
+    labels: 
+      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.monitor-only=true      
+    environment:
+      - MYSQL_HOST=mysql_snipe
+      - MYSQL_PASS=${MYSQL_PASSWORD}
+      - CRON_TIME=${BACKUP_CRON_TIME}
+      - GZIP_LEVEL=${BACKUP_GZIP_LEVEL}
     restart: unless-stopped
 networks:
+  snipe-it-core:
+    name: snipe-it-core  
   traefik:
-    external:
-      name: traefik
+    name: traefik
+    external: true
+volumes:
+  db:
+    driver: local
