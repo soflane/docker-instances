@@ -58,6 +58,7 @@ services:
       #- flame.icon=icon-name # Optional, default is "docker"
       #Enable Auto-Updates (Watchtower)
       - com.centurylinklabs.watchtower.enable=true
+      # - com.centurylinklabs.watchtower.monitor-only=true   
     networks:
       - traefik
     expose:
@@ -65,6 +66,11 @@ services:
     ports:
       - 80:80
       - 443:443
+    logging:
+      # driver: "json-file"
+      options:
+        # max-file: "5"   # number of files or file count
+        max-size: "5g" # file size
     restart: unless-stopped
 ######################################
 #            Dashboard               #
