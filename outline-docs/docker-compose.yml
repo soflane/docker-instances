@@ -1,0 +1,163 @@
+version: '3.5'
+services: 
+  outline:
+    image: docker.getoutline.com/outlinewiki/outline:latest
+    env_file: .env
+    container_name: outline
+    hostname: outline
+    environment:
+      - NODE_ENV=production
+      - URL=https://${OUTLINE_HOSTNAME}.${MAIN_DOMAIN}
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/outline
+      - DATABASE_URL_TEST=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/outline-test
+      - PGSSLMODE=disable
+      - FORCE_HTTPS=false
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.outline.rule=Host(`${OUTLINE_HOSTNAME}.${MAIN_DOMAIN}`)|| Host(`${OUTLINE_HOSTNAME}.${ALTERNATIVE_DOMAIN}`) || Host(`${HELP_HOSTNAME}`) 
+      - traefik.http.routers.outline.tls.certresolver=lets-encrypt
+      - traefik.http.routers.outline.entrypoints=web-secure
+      - traefik.http.routers.outline.middlewares=security-protocol@file
+      - traefik.http.services.outline.loadbalancer.server.port=3000
+      - traefik.http.middlewares.outline-help.redirectregex.regex=(.*)${HELP_HOSTNAME}(.*)
+      - traefik.http.middlewares.outline-help.redirectregex.replacement=${HELP_REDIRECT}
+      - traefik.http.middlewares.outline-secured.chain.middlewares=force-https@file,rate-limit@file,headers-control@file,outline-help@docker
+      - traefik.http.routers.outline.middlewares=outline-secured
+      # - traefik.http.middlewares.outlineheader.headers.accesscontrolalloworiginlist=https//${OUTLINE_HOSTNAME}.${MAIN_DOMAIN},https//${OUTLINE_HOSTNAME}.${ALTERNATIVE_DOMAIN},${AWS_S3_UPLOAD_BUCKET_URL}
+      # - traefik.http.middlewares.outlineheader.headers.referrerPolicy="origin-when-cross-origin"
+      # - traefik.http.routers.outline.middlewares=outlineheader@docker
+      #- traefik.http.routers.outline.middlewares=basic-auth@file
+      #Enable Auto-Updates (Watchtower)
+      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.monitor-only=true
+    # volumes:  
+    #   - ${OUTLINE_CONFIG}:/config
+    networks:
+      - traefik
+      - outline-core
+    expose:
+      - 3000
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+      # - storage
+  redis:
+    image: redis
+    env_file: .env
+    hostname: redis
+    container_name: redis
+    networks:
+      - outline-core
+    expose:
+      - "6379"
+    # volumes:
+    #   - ./redis.conf:/redis.conf
+    # command: ["redis-server", "/redis.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+  # drawio:
+  #   image: jgraph/drawio
+  #   container_name: drawio
+  #   restart: unless-stopped
+  #   expose:
+  #     - 8080
+  #     # - 8443
+  #   environment:
+  #     PUBLIC_DNS: ${DRAW_HOSTNAME}.${MAIN_DOMAIN}
+  #     ORGANISATION_UNIT: Smeyers.tech
+  #     ORGANISATION: Smeyers.tech
+  #     CITY: Brussels
+  #     # STATE: Belgium
+  #     COUNTRY_CODE: Belgium
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.docker.network=traefik
+  #     - traefik.http.routers.drawio.rule=Host(`${DRAWIO_HOSTNAME}.${MAIN_DOMAIN}`)
+  #     - traefik.http.routers.drawio.tls.certresolver=lets-encrypt
+  #     - traefik.http.routers.drawio.entrypoints=web-secure
+  #     - traefik.http.routers.drawio.middlewares=security-protocol@file
+  #     - traefik.http.services.drawio.loadbalancer.server.port=8080
+  #     #- traefik.http.routers.drawio.middlewares=basic-auth@file
+  #     #Enable Auto-Updates (Watchtower)
+  #     - com.centurylinklabs.watchtower.enable=true
+  #     - com.centurylinklabs.watchtower.monitor-only=true
+  #   # volumes:  
+  #   #   - ${OUTLINE_CONFIG}:/config
+  #   networks:
+  #     - traefik
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f http://${DRAWIO_HOSTNAME}.${MAIN_DOMAIN}:8080 || exit 1"]
+  #     interval: 1m30s
+  #     timeout: 10s
+  #     retries: 5
+  #     start_period: 10s
+  postgres:
+    image: postgres
+    env_file: .env
+    hostname: postgres
+    container_name: postgres
+    networks:
+      - outline-core
+    expose:
+      - "5432"
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+  # adminer:
+  #   image: adminer
+  #   env_file: .env
+  #   container_name: adminer
+  #   hostname: adminer #${NEXTCLOUD_HOSTNAME}
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.docker.network=traefik
+  #     - traefik.http.routers.adminer.rule=Host(`DB.docs.ayoute.be`)
+  #     - traefik.http.routers.adminer.tls.certresolver=lets-encrypt
+  #     - traefik.http.routers.adminer.entrypoints=web-secure
+  #     #- traefik.http.routers.adminer.middlewares=basic-auth@file
+  #     #Enable Auto-Updates (Watchtower)
+  #     #- com.centurylinklabs.watchtower.enable=true
+  #   networks:
+  #     - traefik
+  #     - outline-core
+  #   expose:
+  #     - 8080
+  #   restart: unless-stopped
+  pg-cron-backup:
+    image: kartoza/pg-backup:$POSTGRES_MAJOR_VERSION-$POSTGIS_MAJOR_VERSION.${POSTGIS_MINOR_RELEASE}
+    container_name: pg-cron-backup
+    networks:
+      - outline-core
+    env_file: .env
+    depends_on:
+      - postgres
+    volumes:
+      - ${DB_BACKUP_PATH}:/backups
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DBNAME=${POSTGRES_DB}
+      - CRON_SCHEDULE=${BACKUP_CRON_TIME}
+      - POSTGRES_PASS=${POSTGRES_PASSWORD}
+      #- GZIP_LEVEL=${BACKUP_GZIP_LEVEL}
+    restart: unless-stopped
+volumes:
+  # https-portal-data:
+  # storage-data:
+  database-data:
+networks:
+  traefik:
+    external: true
+    name: traefik  
+  outline-core:
+    name: outline-core  
+    
