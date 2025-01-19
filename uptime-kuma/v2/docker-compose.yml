@@ -1,0 +1,88 @@
+services:
+  uptimekuma-database: 
+    image: lscr.io/linuxserver/mariadb
+    hostname: ${DB_HOST:-uptimekuma-database}
+    container_name: uptime-kuma_database
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE:-uptimekuma}
+      - MYSQL_USER=${DB_USERNAME:-uptime3306}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-somepassword}
+    networks:
+      - uptime
+    # command:
+    #   - --character-set-server=utf8mb4
+    #   - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ${PATH_DATABASE:-./db}:/config
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-uroot",
+          "-p${DB_PASSWORD:-somepassword}",
+          # "-p$DB_PASSWORD",
+          "--silent"
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  uptimekuma-db-cronbackup:
+    image: fradelg/mysql-cron-backup
+    container_name: uptime-kuma_db-cronbackup
+    depends_on:
+      uptimekuma-database:
+        condition: service_healthy
+        restart: true
+    networks:
+      - uptime
+    volumes:
+      - ${PATH_DB_BACKUP:-./db-backup}:/backup
+    environment:
+      - MYSQL_HOST=${DB_HOST:-uptimekuma-database}
+      - MYSQL_PORT=3306
+      - MYSQL_PASS=${DB_PASSWORD:-somepassword}
+      - MYSQL_USER=${DB_USERNAME:-uptime3306}
+      - MYSQL_DATABASE=${DB_DATABASE:-uptimekuma}
+    restart: unless-stopped
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:beta-slim
+    container_name: uptime-kuma
+    hostname: uptime-kuma
+    environment:
+      - UPTIME_KUMA_DB_TYPE=mariadb
+      - UPTIME_KUMA_DB_HOSTNAME=${DB_HOST:-uptimekuma-database}
+      - UPTIME_KUMA_DB_PORT=3306
+      - UPTIME_KUMA_DB_NAME=${DB_DATABASE:-uptimekuma}
+      - UPTIME_KUMA_DB_USERNAME=${DB_USERNAME:-uptime3306}
+      - UPTIME_KUMA_DB_PASSWORD=${DB_PASSWORD:-somepassword}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=${DOCKER_NETWORK_NAME:-traefik}
+      - traefik.http.routers.uptime-kuma.rule=Host(`${HOSTNAME_UPTIMEKUMA}`)
+      - traefik.http.routers.uptime-kuma.tls.certresolver=lets-encrypt
+      - traefik.http.routers.uptime-kuma.entrypoints=web-https
+    volumes:  
+      - ${PATH_UPTIME:-./uptimekuma-config}:/app/data 
+    networks:
+      - uptime
+      - external-proxy
+    expose:
+      - 3001
+    restart: unless-stopped
+    depends_on:
+      uptimekuma-database:
+        condition: service_healthy
+        restart: true
+
+networks:
+  external-proxy:
+    name: ${DOCKER_NETWORK_NAME:-traefik}  
+    external: true
+  uptime:
