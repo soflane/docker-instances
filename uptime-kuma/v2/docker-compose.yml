@@ -44,6 +44,9 @@ services:
     volumes:
       - ${PATH_DB_BACKUP:-./db-backup}:/backup
     environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
       - MYSQL_HOST=${DB_HOST:-uptimekuma-database}
       - MYSQL_PORT=3306
       - MYSQL_PASS=${DB_PASSWORD:-somepassword}
