@@ -47,6 +47,7 @@ services:
       - TZ=${TZ}
       - PUID=${PUID}
       - PGID=${PGID}
+      - DOCKER_NETWORK_NAME=${DOCKER_NETWORK_NAME}
       - MYSQL_HOST=${DB_HOST:-uptimekuma-database}
       - MYSQL_PORT=3306
       - MYSQL_PASS=${DB_PASSWORD:-somepassword}
