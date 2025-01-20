@@ -4,12 +4,12 @@ services:
     hostname: ${DB_HOST:-uptimekuma-database}
     container_name: uptime-kuma_database
     environment:
-      - TZ=${TZ:-Europe/Brussels}
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - MYSQL_DATABASE=${DB_DATABASE:-uptimekuma}
-      - MYSQL_USER=${DB_USERNAME:-uptime3306}
-      - MYSQL_PASSWORD=${DB_PASSWORD:-somepassword}
+      TZ: ${TZ:-Europe/Brussels}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      MYSQL_DATABASE: ${DB_DATABASE:-uptimekuma}
+      MYSQL_USER: ${DB_USERNAME:-uptime3306}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-somepassword}
     networks:
       - uptime
     # command:
@@ -47,15 +47,14 @@ services:
     volumes:
       - ${PATH_DB_BACKUP:-/opt/uptime-kuma/db-backup}:/backup
     environment:
-      - TZ=${TZ:-Europe/Brussels}
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - DOCKER_NETWORK_NAME=${DOCKER_NETWORK_NAME}
-      - MYSQL_HOST=${DB_HOST:-uptimekuma-database}
-      - MYSQL_PORT=3306
-      - MYSQL_PASS=${DB_PASSWORD:-somepassword}
-      - MYSQL_USER=${DB_USERNAME:-uptime3306}
-      - MYSQL_DATABASE=${DB_DATABASE:-uptimekuma}
+      TZ: ${TZ:-Europe/Brussels}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      MYSQL_HOST: ${DB_HOST:-uptimekuma-database}
+      MYSQL_PORT: 3306
+      MYSQL_PASS: ${DB_PASSWORD:-somepassword}
+      MYSQL_USER: ${DB_USERNAME:-uptime3306}
+      MYSQL_DATABASE: ${DB_DATABASE:-uptimekuma}
     restart: unless-stopped
 
   uptime-kuma:
@@ -63,14 +62,14 @@ services:
     container_name: uptime-kuma
     hostname: uptime-kuma
     environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - UPTIME_KUMA_DB_TYPE=mariadb
-      - UPTIME_KUMA_DB_HOSTNAME=${DB_HOST:-uptimekuma-database}
-      - UPTIME_KUMA_DB_PORT=3306
-      - UPTIME_KUMA_DB_NAME=${DB_DATABASE:-uptimekuma}
-      - UPTIME_KUMA_DB_USERNAME=${DB_USERNAME:-uptime3306}
-      - UPTIME_KUMA_DB_PASSWORD=${DB_PASSWORD:-somepassword}
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
+      UPTIME_KUMA_DB_TYPE: mariadb
+      UPTIME_KUMA_DB_HOSTNAME: ${DB_HOST:-uptimekuma-database}
+      UPTIME_KUMA_DB_PORT: 3306
+      UPTIME_KUMA_DB_NAME: ${DB_DATABASE:-uptimekuma}
+      UPTIME_KUMA_DB_USERNAME: ${DB_USERNAME:-uptime3306}
+      UPTIME_KUMA_DB_PASSWORD: ${DB_PASSWORD:-somepassword}
     labels:
       - traefik.enable=true
       - traefik.docker.network=${DOCKER_NETWORK_NAME:-traefik}
