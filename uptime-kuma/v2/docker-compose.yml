@@ -4,6 +4,9 @@ services:
     hostname: ${DB_HOST:-uptimekuma-database}
     container_name: uptime-kuma_database
     environment:
+      - TZ=${TZ:-Europe/Brussels}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
       - MYSQL_DATABASE=${DB_DATABASE:-uptimekuma}
       - MYSQL_USER=${DB_USERNAME:-uptime3306}
       - MYSQL_PASSWORD=${DB_PASSWORD:-somepassword}
@@ -13,7 +16,7 @@ services:
     #   - --character-set-server=utf8mb4
     #   - --collation-server=utf8mb4_unicode_ci
     volumes:
-      - ${PATH_DATABASE:-./db}:/config
+      - ${PATH_DATABASE:-/opt/uptime-kuma/database}:/config
     restart: unless-stopped
     healthcheck:
       test:
@@ -42,11 +45,11 @@ services:
     networks:
       - uptime
     volumes:
-      - ${PATH_DB_BACKUP:-./db-backup}:/backup
+      - ${PATH_DB_BACKUP:-/opt/uptime-kuma/db-backup}:/backup
     environment:
-      - TZ=${TZ}
-      - PUID=${PUID}
-      - PGID=${PGID}
+      - TZ=${TZ:-Europe/Brussels}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
       - DOCKER_NETWORK_NAME=${DOCKER_NETWORK_NAME}
       - MYSQL_HOST=${DB_HOST:-uptimekuma-database}
       - MYSQL_PORT=3306
@@ -60,6 +63,8 @@ services:
     container_name: uptime-kuma
     hostname: uptime-kuma
     environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
       - UPTIME_KUMA_DB_TYPE=mariadb
       - UPTIME_KUMA_DB_HOSTNAME=${DB_HOST:-uptimekuma-database}
       - UPTIME_KUMA_DB_PORT=3306
@@ -73,7 +78,7 @@ services:
       - traefik.http.routers.uptime-kuma.tls.certresolver=lets-encrypt
       - traefik.http.routers.uptime-kuma.entrypoints=web-https
     volumes:  
-      - ${PATH_UPTIME:-./uptimekuma-config}:/app/data 
+      - ${PATH_UPTIME:-/opt/uptime-kuma/config}:/app/data 
     networks:
       - uptime
       - external-proxy
